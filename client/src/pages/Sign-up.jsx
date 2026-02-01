@@ -1,50 +1,39 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  Box,
-  Container,
-  Paper,
-  TextField,
-  Button,
-  Typography,
-  InputAdornment,
-  Link,
-  Grid,
-  AppBar,
-  Toolbar,
-  IconButton,
-  Menu,
-  MenuItem,
-} from "@mui/material";
-import PersonIcon from "@mui/icons-material/Person";
-import EmailIcon from "@mui/icons-material/Email";
-import LockIcon from "@mui/icons-material/Lock";
-import Visibility from "@mui/icons-material/Visibility";
-import VisibilityOff from "@mui/icons-material/VisibilityOff";
-import MenuIcon from "@mui/icons-material/Menu";
-import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import { toast } from "react-hot-toast";
-
-import Ashoka_Chakra from "../assets/Ashoka_Chakra.svg"; // Logo
-
-const CORE_NAVY_COLOR = "hsla(216, 90%, 39%, 1.00)";
 
 export default function SignupPage() {
   const navigate = useNavigate();
-
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
     confirmPassword: "",
   });
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirm, setShowConfirm] = useState(false);
-  const [anchorEl, setAnchorEl] = useState(null);
-  const open = Boolean(anchorEl);
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
-  const handleMenuClick = (e) => setAnchorEl(e.currentTarget);
-  const handleMenuClose = () => setAnchorEl(null);
+  // Dark mode logic matching HomePage
+  useEffect(() => {
+    if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      document.documentElement.classList.add('dark');
+      setIsDarkMode(true);
+    } else {
+      document.documentElement.classList.remove('dark');
+      setIsDarkMode(false);
+    }
+  }, []);
+
+  const toggleDarkMode = () => {
+    if (isDarkMode) {
+      document.documentElement.classList.remove('dark');
+      localStorage.theme = 'light';
+      setIsDarkMode(false);
+    } else {
+      document.documentElement.classList.add('dark');
+      localStorage.theme = 'dark';
+      setIsDarkMode(true);
+    }
+  };
 
   const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
@@ -76,118 +65,140 @@ export default function SignupPage() {
   };
 
   return (
-    <Box sx={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
-      {/* =================== NAVBAR =================== */}
-      <AppBar position="static" sx={{ backgroundColor: "#fff", color: "#000", boxShadow: "0 2px 6px rgba(0,0,0,0.1)" }}>
-        <Toolbar sx={{ display: "flex", justifyContent: "space-between", px: { xs: 2, md: 6 }, py: 1 }}>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1, cursor: "pointer" }} onClick={() => navigate("/")}>
-            <img src={Ashoka_Chakra} alt="Ashoka_Chakra" style={{ width: 200, height: 55 }} />
-            <Box>
-              <Typography variant="h6" fontWeight="bold" color="#000" sx={{ fontSize: { xs: '0.9rem', sm: '1.25rem' }, lineHeight: 1.2 }}>
-                PM Internship Scheme
-              </Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.75rem', lineHeight: 1, display: { xs: 'none', sm: 'block' } }}>
-                Ministry of Corporate Affairs, Government of India
-              </Typography>
-            </Box>
-          </Box>
-
-          <Box sx={{ display: { xs: "none", md: "flex" } }}>
-            <Button
-              variant="contained"
-              sx={{ backgroundColor: CORE_NAVY_COLOR, color: "#fff", fontWeight: "bold", textTransform: "none", "&:hover": { backgroundColor: "hsla(216, 90%, 20%, 1.00)" } }}
-              onClick={() => navigate("/login")}
-            >
-              Login
-            </Button>
-          </Box>
-
-          <IconButton sx={{ display: { xs: "block", md: "none" } }} onClick={handleMenuClick} color={CORE_NAVY_COLOR}>
-            <MenuIcon />
-          </IconButton>
-          <Menu anchorEl={anchorEl} open={open} onClose={handleMenuClose}>
-            <MenuItem onClick={() => { navigate("/signup"); handleMenuClose(); }}>Register</MenuItem>
-          </Menu>
-        </Toolbar>
-        <Box sx={{ bgcolor: CORE_NAVY_COLOR, height: 20 }}></Box>
-      </AppBar>
-
-      {/* =================== SIGNUP FORM =================== */}
-      <Box sx={{ flexGrow: 1, display: "flex", alignItems: "center", justifyContent: "center", py: 4, backgroundImage: "linear-gradient(180deg, #f5f7fb 0%, #e0e7f7 100%)" }}>
-        <Container maxWidth="sm" sx={{ textAlign: "center" }}>
-          <img src={Ashoka_Chakra} alt="Ashoka_ Chakra" style={{ width: 60, height: 60, opacity: 0.8 }} />
-          <Typography variant="h5" fontWeight="bold" color={CORE_NAVY_COLOR} sx={{ mt: 1 }}>
-            PM Internship Portal
-          </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 4 }}>
-            Ministry of Corporate Affairs, Government of India
-          </Typography>
-
-          <Paper elevation={4} sx={{ p: { xs: 3, sm: 5 }, borderRadius: "12px", width: "100%", display: "flex", flexDirection: "column", alignItems: "center" }}>
-            <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-              <PersonAddIcon sx={{ color: CORE_NAVY_COLOR, mr: 1 }} />
-              <Typography component="h1" variant="h6" fontWeight="bold" color={CORE_NAVY_COLOR}>
-                Create Account
-              </Typography>
-            </Box>
-
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-              Join the internship portal and start your journey
-            </Typography>
-
-            {/* DEMO CREDENTIALS */}
-            <Box sx={{ p: 1.5, mb: 3, bgcolor: 'hsla(48, 100%, 90%, 1)', border: '1px solid hsla(48, 100%, 70%, 1)', borderRadius: '8px', width: '100%', fontSize: '0.85rem' }}>
-              <Typography variant="body2" fontWeight="bold" sx={{ color: 'hsla(30, 80%, 30%, 1)' }}>Demo Credentials:</Typography>
-              <Typography variant="body2" sx={{ color: 'hsla(30, 80%, 30%, 1)' }}>Email: <Link sx={{ fontWeight: 'bold' }}>demo@example.com</Link> </Typography>
-              <Typography variant="body2" sx={{ color: 'hsla(30, 80%, 30%, 1)' }}>Password: <Link sx={{ fontWeight: 'bold' }}>demo123</Link></Typography>
-            </Box>
-
-            <Box component="form" onSubmit={handleSubmit} sx={{ width: "100%" }}>
-              <TextField margin="normal" required fullWidth label="Full Name" name="name" value={formData.name} onChange={handleChange} InputProps={{ startAdornment: <InputAdornment position="start"><PersonIcon color="action" /></InputAdornment> }} />
-              <TextField margin="normal" required fullWidth label="Email Address" type="email" name="email" value={formData.email} onChange={handleChange} InputProps={{ startAdornment: <InputAdornment position="start"><EmailIcon color="action" /></InputAdornment> }} />
-              <TextField margin="normal" required fullWidth label="Password" type={showPassword ? "text" : "password"} name="password" value={formData.password} onChange={handleChange} InputProps={{ startAdornment: <InputAdornment position="start"><LockIcon color="action" /></InputAdornment>, endAdornment: <InputAdornment position="end" onClick={() => setShowPassword(!showPassword)} sx={{ cursor: "pointer" }}>{showPassword ? <VisibilityOff /> : <Visibility />}</InputAdornment> }} />
-              <TextField margin="normal" required fullWidth label="Confirm Password" type={showConfirm ? "text" : "password"} name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} InputProps={{ startAdornment: <InputAdornment position="start"><LockIcon color="action" /></InputAdornment>, endAdornment: <InputAdornment position="end" onClick={() => setShowConfirm(!showConfirm)} sx={{ cursor: "pointer" }}>{showConfirm ? <VisibilityOff /> : <Visibility />}</InputAdornment> }} />
-
-              <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2, py: 1.5, fontSize: "1rem", fontWeight: "bold", borderRadius: "8px", textTransform: "none", background: CORE_NAVY_COLOR, "&:hover": { background: "hsla(216, 90%, 20%, 1.00)" } }}>
-                Sign Up
-              </Button>
-
-              {/* SECURITY NOTICE */}
-              <Box sx={{ p: 1.5, mt: 3, bgcolor: 'hsla(48, 100%, 90%, 1)', border: '1px solid hsla(48, 100%, 70%, 1)', borderRadius: '8px', width: '100%', fontSize: '0.8rem', display: 'flex', alignItems: 'center' }}>
-                <i className="fa-solid fa-lock" style={{ color: 'hsla(30, 80%, 30%, 1)', marginRight: '8px' }}></i>
-                <Typography variant="body2" sx={{ color: 'hsla(30, 80%, 30%, 1)', fontStyle: 'italic' }}>
-                  Security Notice: Never share your login credentials. Always logout after use.
-                </Typography>
-              </Box>
-
-              <Typography variant="body2" align="center" sx={{ mt: 2 }}>
-                Already have an account?{" "}
-                <Link component="button" variant="body2" sx={{ color: CORE_NAVY_COLOR, fontWeight: "bold" }} onClick={() => navigate("/login")}>
-                  Login
-                </Link>
-              </Typography>
-            </Box>
-          </Paper>
-        </Container>
-      </Box>
-
-      {/* =================== FOOTER =================== */}
-      <Box component="footer" sx={{ bgcolor: CORE_NAVY_COLOR, color: "#fff", py: 6 }}>
-        <Container>
-          <Grid container spacing={4}>
-            <Grid item xs={12} sm={6} md={3}>
-              <Typography sx={{ fontWeight: "bold", fontSize: "1.1rem", mb: 2 }}>PM Internship Scheme</Typography>
-              <Typography variant="body2" color="rgba(255,255,255,0.7)" sx={{ mb: 2 }}>
-                Bridging academic learning with industry requirements through quality internship opportunities.
-              </Typography>
-              <Box sx={{ display: "flex", alignItems: "center", mt: 2 }}>
-                <img src={Ashoka_Chakra} alt="Ashoka_" style={{ width: 30, height: 30, mr: 1, filter: "invert(100%)" }} />
-                <Typography variant="body2" color="rgba(255,255,255,0.7)">Ministry of Corporate Affairs</Typography>
-              </Box>
-            </Grid>
-          </Grid>
-        </Container>
-      </Box>
-    </Box>
+    <div className="bg-background-light dark:bg-background-dark font-display text-[#130d1c] dark:text-white transition-colors duration-300 min-h-screen flex items-center justify-center overflow-x-hidden">
+      <div className="fixed inset-0 z-0 gradient-bg">
+        <div className="absolute inset-0 opacity-20 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '40px 40px' }}></div>
+        <div className="absolute top-20 left-[10%] text-white/20 floating-element hidden lg:block">
+          <span className="material-symbols-outlined text-[120px]">school</span>
+        </div>
+        <div className="absolute bottom-20 right-[10%] text-white/20 floating-element hidden lg:block" style={{ animationDelay: '-3s' }}>
+          <span className="material-symbols-outlined text-[100px]">rocket_launch</span>
+        </div>
+        <div className="absolute top-1/2 left-[5%] text-white/10 floating-element hidden lg:block" style={{ animationDelay: '-1.5s' }}>
+          <span className="material-symbols-outlined text-[80px]">work</span>
+        </div>
+      </div>
+      <div className="relative z-10 w-full max-w-[1200px] px-4 py-12 flex flex-col items-center">
+        <div className="mb-8 flex items-center gap-3">
+          <div className="size-10 text-white bg-primary rounded-xl flex items-center justify-center p-2 shadow-lg shadow-primary/30" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
+            <svg fill="currentColor" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+              <path d="M24 18.4228L42 11.475V34.3663C42 34.7796 41.7457 35.1504 41.3601 35.2992L24 42V18.4228Z"></path>
+              <path d="M24 8.18819L33.4123 11.574L24 15.2071L14.5877 11.574L24 8.18819ZM9 15.8487L21 20.4805V37.6263L9 32.9945V15.8487ZM27 37.6263V20.4805L39 15.8487V32.9945L27 37.6263ZM25.354 2.29885C24.4788 1.98402 23.5212 1.98402 22.646 2.29885L4.98454 8.65208C3.7939 9.08038 3 10.2097 3 11.475V34.3663C3 36.0196 4.01719 37.5026 5.55962 38.098L22.9197 44.7987C23.6149 45.0671 24.3851 45.0671 25.0803 44.7987L42.4404 38.098C43.9828 37.5026 45 36.0196 45 34.3663V11.475C45 10.2097 44.2061 9.08038 43.0155 8.65208L25.354 2.29885Z"></path>
+            </svg>
+          </div>
+          <h1 className="text-2xl font-black text-white tracking-tight">InternFinder</h1>
+        </div>
+        <div className="w-full max-w-[500px] glass bg-white dark:bg-[#1f162e] rounded-3xl p-8 md:p-12 shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-white/20">
+          <div className="text-center mb-10">
+            <h2 className="text-3xl md:text-4xl font-black mb-3 tracking-tight text-[#130d1c] dark:text-white">Join the Future of Growth</h2>
+            <p className="text-slate-500 dark:text-slate-400">Start your professional journey with the InternFinder scheme today.</p>
+          </div>
+          <form className="space-y-5" onSubmit={handleSubmit}>
+            <div className="space-y-2">
+              <label className="text-xs font-bold uppercase tracking-widest opacity-60 px-1">Full Name</label>
+              <div className="relative group">
+                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors">person</span>
+                <input
+                  className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl py-4 pl-12 pr-4 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-slate-400"
+                  placeholder="John Doe"
+                  type="text"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-bold uppercase tracking-widest opacity-60 px-1">Email Address</label>
+              <div className="relative group">
+                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors">alternate_email</span>
+                <input
+                  className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl py-4 pl-12 pr-4 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-slate-400"
+                  placeholder="name@example.com"
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-bold uppercase tracking-widest opacity-60 px-1">Password</label>
+              <div className="relative group">
+                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors">lock</span>
+                <input
+                  className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl py-4 pl-12 pr-4 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-slate-400"
+                  placeholder="••••••••"
+                  type="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-bold uppercase tracking-widest opacity-60 px-1">Confirm Password</label>
+              <div className="relative group">
+                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors">verified_user</span>
+                <input
+                  className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl py-4 pl-12 pr-4 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-slate-400"
+                  placeholder="••••••••"
+                  type="password"
+                  name="confirmPassword"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                />
+              </div>
+            </div>
+            <button className="w-full bg-gradient-to-r from-primary to-[#4d21b3] text-white font-bold py-4 rounded-2xl shadow-xl shadow-primary/30 hover:shadow-primary/40 hover:scale-[1.02] active:scale-95 transition-all duration-300 mt-4 flex items-center justify-center gap-2" type="submit">
+              Create Account
+              <span className="material-symbols-outlined">arrow_forward</span>
+            </button>
+          </form>
+          <div className="mt-8">
+            <div className="relative flex items-center py-4">
+              <div className="flex-grow border-t border-slate-200 dark:border-white/10"></div>
+              <span className="flex-shrink mx-4 text-xs font-bold uppercase tracking-widest opacity-40">Or register with</span>
+              <div className="flex-grow border-t border-slate-200 dark:border-white/10"></div>
+            </div>
+            <div className="grid grid-cols-2 gap-4 mt-4">
+              <button className="flex items-center justify-center gap-3 py-3 border border-slate-200 dark:border-white/10 rounded-2xl hover:bg-slate-50 dark:hover:bg-white/5 transition-colors" onClick={() => toast('Feature coming soon')}>
+                <svg className="size-5" viewBox="0 0 24 24">
+                  <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"></path>
+                  <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"></path>
+                  <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"></path>
+                  <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"></path>
+                </svg>
+                <span className="text-sm font-semibold">Google</span>
+              </button>
+              <button className="flex items-center justify-center gap-3 py-3 border border-slate-200 dark:border-white/10 rounded-2xl hover:bg-slate-50 dark:hover:bg-white/5 transition-colors" onClick={() => toast('Feature coming soon')}>
+                <svg className="size-5" fill="#0077b5" viewBox="0 0 24 24">
+                  <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"></path>
+                </svg>
+                <span className="text-sm font-semibold">LinkedIn</span>
+              </button>
+            </div>
+          </div>
+          <div className="mt-10 text-center">
+            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+              Already have an account?
+              <button className="text-primary font-bold hover:underline transition-all ml-1" onClick={() => navigate('/login')}>Log In</button>
+            </p>
+          </div>
+        </div>
+        <div className="mt-8 flex flex-col items-center gap-6">
+          <button className="glass p-3 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors" onClick={toggleDarkMode}>
+            <span className="material-symbols-outlined text-[20px] block dark:hidden">dark_mode</span>
+            <span className="material-symbols-outlined text-[20px] hidden dark:block text-white">light_mode</span>
+          </button>
+          <div className="flex gap-8 text-xs font-medium text-white/40 uppercase tracking-widest">
+            <a className="hover:text-white transition-colors" href="#">Privacy Policy</a>
+            <a className="hover:text-white transition-colors" href="#">Terms of Service</a>
+            <a className="hover:text-white transition-colors" href="#">Support</a>
+          </div>
+        </div>
+      </div>
+      {/* Removed duplicate Chatbot floating button as App.jsx renders it globally */}
+    </div>
   );
 }

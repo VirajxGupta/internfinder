@@ -1,52 +1,80 @@
-import React, { useState } from "react";
-import {
-  Box,
-  Container,
-  Typography,
-  Paper,
-  Grid,
-  Card,
-  CardContent,
-  CardActions,
-  Button,
-  Avatar,
-  Chip,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Divider,
-  AppBar,
-  Toolbar,
-  IconButton,
-  Collapse,
-} from "@mui/material";
-import WorkIcon from "@mui/icons-material/Work";
-import BookmarkAddedIcon from "@mui/icons-material/BookmarkAdded";
-import LogoutIcon from "@mui/icons-material/Logout";
-import WorkOutlineIcon from "@mui/icons-material/WorkOutline";
-import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
-import MenuIcon from "@mui/icons-material/Menu";
-import HomeIcon from "@mui/icons-material/Home";
-import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-hot-toast";
+import { motion } from "framer-motion";
 import AshokChakra from "../assets/Ashoka_Chakra.svg";
 
+// Footer Component
+const Footer = () => (
+  <footer className="bg-[#0a45a3] text-white pt-8 pb-6 border-t border-white/10 mt-10">
+    <div className="max-w-[1200px] mx-auto px-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+        <div>
+          <h3 className="font-bold text-lg mb-4 flex items-center">
+            InternFinder
+          </h3>
+          <p className="text-white/60 text-sm leading-relaxed mb-4">
+            Bridging the gap between academic learning and industry requirements through quality internship opportunities in India's leading companies.
+          </p>
+          <p className="text-white/60 text-xs">Ministry of Corporate Affairs</p>
+        </div>
+        <div>
+          <h3 className="font-bold text-lg mb-4">Quick Links</h3>
+          <ul className="space-y-2 text-sm text-white/60">
+            <li><a href="#" className="hover:text-white transition-colors">Guidelines & Instructions</a></li>
+            <li><a href="#" className="hover:text-white transition-colors">Eligibility Criteria</a></li>
+            <li><a href="#" className="hover:text-white transition-colors">Application Process</a></li>
+            <li><a href="#" className="hover:text-white transition-colors">Frequently Asked Questions</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3 className="font-bold text-lg mb-4">Support</h3>
+          <ul className="space-y-3 text-sm text-white/60">
+            <li className="flex items-start gap-2">
+              <span className="material-symbols-outlined text-sm mt-0.5">mail</span>
+              support@internfinder.gov.in
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="material-symbols-outlined text-sm mt-0.5">call</span>
+              1800-123-456 (Toll Free)
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="material-symbols-outlined text-sm mt-0.5">location_on</span>
+              Shastri Bhawan, New Delhi - 110001
+            </li>
+          </ul>
+        </div>
+        <div>
+          <h3 className="font-bold text-lg mb-4">Government Links</h3>
+          <ul className="space-y-2 text-sm text-white/60">
+            <li><a href="https://www.india.gov.in" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">India.gov.in</a></li>
+            <li><a href="https://www.mca.gov.in" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Ministry of Corporate Affairs</a></li>
+            <li><a href="https://digitalindia.gov.in" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Digital India</a></li>
+            <li><a href="https://www.mygov.in" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">MyGov.in</a></li>
+          </ul>
+        </div>
+      </div>
+      <div className="border-t border-white/10 pt-6 flex flex-col md:flex-row items-center justify-between text-xs text-white/40">
+        <p>© 2025 InternFinder. All rights reserved.</p>
+        <div className="flex gap-6 mt-4 md:mt-0">
+          <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
+          <a href="#" className="hover:text-white transition-colors">Terms of Service</a>
+          <a href="#" className="hover:text-white transition-colors">Accessibility</a>
+          <a href="#" className="hover:text-white transition-colors">Sitemap</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+);
+
 export default function SavedInternships() {
-  const [open, setOpen] = useState(false);
-  const [selectedInternship, setSelectedInternship] = useState(null);
-  const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [user, setUser] = useState({ name: "Intern", email: "" });
+  const [selectedInternship, setSelectedInternship] = useState(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-
-  // const handleApply = () => {
-  //   navigate("/apply");
-  // };
-
-  const handleLogout = () => {
-    navigate("/");
-  };
-
+  // Mock Data (Preserved)
   const savedInternships = [
     {
       id: 1,
@@ -86,206 +114,246 @@ export default function SavedInternships() {
     },
   ];
 
+  useEffect(() => {
+    // Dark Mode Logic
+    if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      document.documentElement.classList.add('dark');
+      setIsDarkMode(true);
+    } else {
+      document.documentElement.classList.remove('dark');
+      setIsDarkMode(false);
+    }
+    // Load User
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+  }, []);
+
+  const toggleDarkMode = () => {
+    if (isDarkMode) {
+      document.documentElement.classList.remove('dark');
+      localStorage.theme = 'light';
+      setIsDarkMode(false);
+    } else {
+      document.documentElement.classList.add('dark');
+      localStorage.theme = 'dark';
+      setIsDarkMode(true);
+    }
+  };
+
   const handleOpen = (internship) => {
     setSelectedInternship(internship);
-    setOpen(true);
+    setIsDialogOpen(true);
   };
 
   const handleClose = () => {
     setSelectedInternship(null);
-    setOpen(false);
+    setIsDialogOpen(false);
   };
-  const NavyButtonStyles = {
-  backgroundColor: "hsla(216, 90%, 39%, 1.00)",
-  color: "#fff",
-  border: `2px solid #0a53be`,
-  textTransform: "none",
-  fontWeight: "bold",
-  px: 3,
-  py: 1,
-  transition: "all 0.2s ease-in-out",
-  "&:hover": {
-    backgroundColor: "hsla(216, 90%, 20%, 1.00)",
-    transform: "translateY(-2px)",
-    border: "2px solid hsla(216, 90%, 20%, 1.00)",
-    boxShadow: "0 4px 8px hsla(0, 0%, 0%, 0.25)",
-  },
-};
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: { staggerChildren: 0.1 }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: { y: 0, opacity: 1 }
+  };
 
   return (
-    <Box
-      sx={{
-        py: 0,
-        minHeight: "100vh",
-        background: "linear-gradient(0deg, #0a52bdff , #fff)",
-      }}
-    >
-      {/* 🔹 Navbar */}
-      <AppBar
-        position="sticky"
-        sx={{
-          background: "#fff",
-          mb: 4,
-        }}
-      >
-        <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                      <img
-                        src={AshokChakra}
-                        alt="Ashok Chakra"
-                        style={{ width: 200, height: 50 }}
-                      />
-          <Typography variant="h5" fontWeight="bold" color="hsla(216, 90%, 20%, 1.00)">
-            Internship Recommender
-          </Typography>
-          </Box>
+    <div className="bg-background-light dark:bg-background-dark font-display text-[#130d1c] dark:text-white transition-colors duration-300 min-h-screen flex flex-col relative overflow-x-hidden">
 
-          {/* Desktop Nav */}
-          <Box sx={{ display: { xs: "none", md: "flex" }, gap: 2 }}>
-            <Button sx={{ ...NavyButtonStyles }}  onClick={() => navigate("/home")}>
-              Home
-            </Button>
-            <Button sx={{ ...NavyButtonStyles }}  onClick={() => navigate("/resume")}>
-              Explore
-            </Button>
-            <Button sx={{ ...NavyButtonStyles }}  onClick={() => navigate("/about")}>
-              About
-            </Button>
-            <Button sx={{ ...NavyButtonStyles }}  onClick={() => navigate("/profile")}>
-              Profile
-            </Button>
-            <Button sx={{ ...NavyButtonStyles }}  onClick={handleLogout}>
-              Logout
-            </Button>
-          </Box>
+      {/* Background Effects */}
+      <div className="fixed inset-0 z-0 gradient-bg">
+        <div className="absolute inset-0 opacity-20 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '40px 40px' }}></div>
+      </div>
 
-          {/* Mobile Menu Toggle */}
-          <IconButton sx={{ display: { xs: "flex", md: "none" }, color: "white" }} onClick={() => setMenuOpen(!menuOpen)}>
-            <MenuIcon />
-          </IconButton>
-        </Toolbar>
+      {/* Navbar */}
+      <div className="fixed top-0 left-0 right-0 z-50 px-4 py-4">
+        <header className="max-w-[1200px] mx-auto glass rounded-full px-6 py-3 flex items-center justify-between shadow-lg border border-white/20 dark:border-white/10">
+          <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/')}>
+            <div className="size-8 text-white bg-primary rounded-lg flex items-center justify-center p-1.5 shadow-lg shadow-primary/30">
+              <img src={AshokChakra} alt="Ashok Stambh" className="w-full h-full" style={{ filter: "invert(100%)" }} />
+            </div>
+            <h2 className="text-lg font-bold tracking-tight">InternFinder</h2>
+          </div>
 
-        {/* Mobile Nav */}
-        <Collapse in={menuOpen}>
-          <Box sx={{ display: "flex", flexDirection: "column", backgroundColor: "rgba(255,255,255,0.1)", px: 2, pb: 2 }}>
-            <Button color="inherit" startIcon={<HomeIcon />} onClick={() => navigate("/")}>Home</Button>
-            <Button color="inherit" startIcon={<WorkOutlineIcon />} onClick={() => navigate("/explore")}>Explore</Button>
-            <Button color="inherit" startIcon={<InfoOutlinedIcon />} onClick={() => navigate("/about")}>About</Button>
-            <Button color="inherit" startIcon={<PersonOutlineIcon />} onClick={() => navigate("/profile")}>Profile</Button>
-            <Button color="inherit" startIcon={<LogoutIcon />} onClick={handleLogout}>Logout</Button>
-          </Box>
-        </Collapse>
-      </AppBar>
-
-      {/* 🔹 Saved Internships */}
-      <Box sx={{ py: 4 }}>
-        <Container maxWidth="lg">
-          <Paper
-            elevation={10}
-            sx={{
-              p: { xs: 2, md: 4 },
-              borderRadius: 4,
-              backdropFilter: "blur(14px)",
-              background: "hsla(216, 90%, 95%, 1.00)",
-            }}
-          >
-            <Avatar sx={{ bgcolor: "hsla(216, 90%, 20%, 1.00)", width: 60, height: 60, mx: "auto", mb: 2 }}>
-              <BookmarkAddedIcon fontSize="medium" />
-            </Avatar>
-            <Typography variant="h5" fontWeight="bold" align="center" gutterBottom>
-              Applied Internships
-            </Typography>
-            <Typography variant="body2" color="text.secondary" align="center" sx={{ mb: 3 }}>
-              Here are the internships you have Applied for 🚀
-            </Typography>
-
-            {/* Cards */}
-            <Grid container spacing={3}>
-              {savedInternships.map((internship) => (
-                <Grid item xs={12} sm={6} md={4} key={internship.id}>
-                  <Card
-                    sx={{
-                      height: "100%",
-                      display: "flex",
-                      flexDirection: "column",
-                      justifyContent: "space-between",
-                      borderRadius: 3,
-                      boxShadow: "0 4px 14px rgba(0,0,0,0.3)",
-                      transition: "0.3s",
-                      "&:hover": { transform: "translateY(-6px)" },
-                    }}
-                  >
-                    <CardContent sx={{ flexGrow: 1 }}>
-                      <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
-                        <WorkIcon color="primary" />
-                        <Typography variant="h6" fontWeight="bold">{internship.title}</Typography>
-                      </Box>
-                      <Typography variant="body2" color="text.secondary">{internship.company}</Typography>
-                      <Typography variant="body2" fontWeight={500} color="primary">📍 {internship.location}</Typography>
-                      <Typography variant="body2">Sector: {internship.sector}</Typography>
-                      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.6, mt: 1 }}>
-                        {internship.skills.map((skill, idx) => (
-                          <Chip key={idx} label={skill} size="small" color="info" />
-                        ))}
-                      </Box>
-                    </CardContent>
-                    <CardActions sx={{ display: "flex", flexDirection: "column", gap: 2, px: 3, pb: 2 }}>
-                      <Button fullWidth sx={{ ...NavyButtonStyles }} onClick={() => handleOpen(internship)}>
-                        View Details
-                      </Button>
-                      {/* <Button onClick={handleApply} fullWidth sx={{ ...NavyButtonStyles}}>
-                        Apply Now
-                      </Button> */}
-                    </CardActions>
-                  </Card>
-                </Grid>
-              ))}
-            </Grid>
-          </Paper>
-        </Container>
-      </Box>
-
-      {/* 🔹 Details Dialog */}
-      <Dialog
-        open={open}
-        onClose={handleClose}
-        maxWidth="sm"
-        fullWidth
-        PaperProps={{
-          sx: {
-            borderRadius: 3,
-            p: 2,
-            background: "hsla(216, 80%, 90%, 1.00)",
-          },
-        }}
-      >
-        <DialogTitle sx={{ fontWeight: "bold" }}>
-          {selectedInternship?.title}
-        </DialogTitle>
-        <DialogContent dividers>
-          <Typography variant="body1" gutterBottom><strong>Company:</strong> {selectedInternship?.company}</Typography>
-          <Typography variant="body2" gutterBottom><strong>Location:</strong> {selectedInternship?.location}</Typography>
-          <Typography variant="body2" gutterBottom><strong>Sector:</strong> {selectedInternship?.sector}</Typography>
-          <Typography variant="body2" gutterBottom><strong>Duration:</strong> {selectedInternship?.duration}</Typography>
-          <Typography variant="body2" gutterBottom><strong>Stipend:</strong> {selectedInternship?.stipend}</Typography>
-          <Typography variant="body2" gutterBottom><strong>Posted On:</strong> {selectedInternship?.postedOn}</Typography>
-          <Divider sx={{ my: 2 }} />
-          <Typography variant="body2" gutterBottom><strong>Description:</strong> {selectedInternship?.description}</Typography>
-          <Typography variant="body2" gutterBottom><strong>Responsibilities:</strong></Typography>
-          <ul style={{ paddingLeft: "1.2rem" }}>
-            {selectedInternship?.responsibilities.map((res, i) => (
-              <li key={i}>
-                <Typography variant="body2">{res}</Typography>
-              </li>
+          <nav className="hidden md:flex items-center gap-1">
+            {[
+              { label: "Dashboard", path: "/home", icon: "dashboard" },
+              { label: "Internships", path: "/resume", icon: "travel_explore" },
+              { label: "Applied", path: "/saved", icon: "assignment_turned_in" },
+              { label: "Profile", path: "/profile", icon: "person" },
+              { label: "About", path: "/about", icon: "info" },
+            ].map((item) => (
+              <button
+                key={item.label}
+                onClick={() => navigate(item.path)}
+                className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all ${item.path === "/saved"
+                  ? "bg-primary text-white shadow-lg shadow-primary/25"
+                  : "hover:bg-black/5 dark:hover:bg-white/10"
+                  }`}
+              >
+                <span className="material-symbols-outlined text-[18px]">{item.icon}</span>
+                {item.label}
+              </button>
             ))}
-          </ul>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose} sx={{...NavyButtonStyles}}>
-            Close
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </Box>
+          </nav>
+
+          <div className="flex items-center gap-2">
+            <button className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors" onClick={toggleDarkMode}>
+              <span className="material-symbols-outlined text-[20px]">{isDarkMode ? 'light_mode' : 'dark_mode'}</span>
+            </button>
+            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-orange-400 to-red-500 flex items-center justify-center text-white font-bold text-sm">
+              {user.name && user.name.charAt(0)}
+            </div>
+          </div>
+        </header>
+      </div>
+
+      {/* Main Content */}
+      <main className="relative z-10 pt-24 pb-6 px-4 container mx-auto max-w-[1200px]">
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center mb-10"
+        >
+          <div className="flex items-center justify-center gap-3 mb-2">
+            <div className="p-3 bg-primary/10 rounded-full text-primary">
+              <span className="material-symbols-outlined text-3xl">assignment_turned_in</span>
+            </div>
+            <h1 className="text-3xl md:text-5xl font-black">Applied Internships</h1>
+          </div>
+          <p className="text-slate-500 dark:text-slate-400 text-lg">Track all the opportunities you have applied for 🚀</p>
+        </motion.div>
+
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+        >
+          {savedInternships.map((internship) => (
+            <motion.div
+              key={internship.id}
+              variants={itemVariants}
+              className="glass p-6 rounded-3xl flex flex-col hover:border-primary/50 transition-all group hover:-translate-y-1"
+            >
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-white dark:bg-white/10 flex items-center justify-center text-xl font-bold shadow-sm">
+                    <span className="material-symbols-outlined text-primary">work</span>
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-lg leading-tight group-hover:text-primary transition-colors">{internship.title}</h3>
+                    <p className="text-sm opacity-60">{internship.company}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-2 mb-6">
+                <div className="flex items-center gap-2 text-sm opacity-70">
+                  <span className="material-symbols-outlined text-sm">location_on</span>
+                  {internship.location}
+                </div>
+                <div className="flex items-center gap-2 text-sm opacity-70">
+                  <span className="material-symbols-outlined text-sm">category</span>
+                  {internship.sector}
+                </div>
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {internship.skills.slice(0, 3).map((skill, i) => (
+                    <span key={i} className="px-2 py-1 bg-primary/5 text-primary text-xs rounded-md font-bold border border-primary/10">
+                      {skill}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              <div className="mt-auto">
+                <button
+                  className="w-full py-3 rounded-xl border border-primary text-primary font-bold hover:bg-primary hover:text-white transition-all"
+                  onClick={() => handleOpen(internship)}
+                >
+                  View Details
+                </button>
+              </div>
+            </motion.div>
+          ))}
+        </motion.div>
+      </main>
+
+      <Footer />
+
+      {/* Details Dialog */}
+      {isDialogOpen && selectedInternship && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="bg-white dark:bg-[#1a1f2e] w-full max-w-lg rounded-3xl shadow-2xl p-8 max-h-[90vh] overflow-y-auto"
+          >
+            <div className="flex justify-between items-start mb-6">
+              <div>
+                <h2 className="text-2xl font-bold leading-tight">{selectedInternship.title}</h2>
+                <p className="text-primary font-bold">{selectedInternship.company}</p>
+              </div>
+              <button onClick={handleClose} className="p-2 hover:bg-black/5 dark:hover:bg-white/10 rounded-full">
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+
+            <div className="space-y-4 mb-8">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-slate-50 dark:bg-white/5 p-3 rounded-xl">
+                  <p className="text-xs opacity-60 uppercase mb-1">Duration</p>
+                  <p className="font-bold">{selectedInternship.duration}</p>
+                </div>
+                <div className="bg-slate-50 dark:bg-white/5 p-3 rounded-xl">
+                  <p className="text-xs opacity-60 uppercase mb-1">Stipend</p>
+                  <p className="font-bold text-green-600 dark:text-green-400">{selectedInternship.stipend}</p>
+                </div>
+                <div className="bg-slate-50 dark:bg-white/5 p-3 rounded-xl">
+                  <p className="text-xs opacity-60 uppercase mb-1">Posted On</p>
+                  <p className="font-bold">{selectedInternship.postedOn}</p>
+                </div>
+                <div className="bg-slate-50 dark:bg-white/5 p-3 rounded-xl">
+                  <p className="text-xs opacity-60 uppercase mb-1">Location</p>
+                  <p className="font-bold">{selectedInternship.location}</p>
+                </div>
+              </div>
+
+              <div>
+                <h3 className="font-bold mb-2">Description</h3>
+                <p className="text-sm opacity-70 leading-relaxed">{selectedInternship.description}</p>
+              </div>
+
+              <div>
+                <h3 className="font-bold mb-2">Responsibilities</h3>
+                <ul className="list-disc pl-5 text-sm opacity-70 space-y-1">
+                  {selectedInternship.responsibilities.map((res, i) => (
+                    <li key={i}>{res}</li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+
+            <div className="flex justify-end">
+              <button
+                className="px-6 py-3 bg-primary text-white font-bold rounded-xl hover:opacity-90 transition-opacity"
+                onClick={handleClose}
+              >
+                Close
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+    </div>
   );
 }

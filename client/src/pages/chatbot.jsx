@@ -1,21 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
-import {
-  Box,
-  Fab,
-  Card,
-  CardHeader,
-  CardContent,
-  IconButton,
-  Typography,
-  TextField,
-  Divider,
-} from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
-import SendIcon from "@mui/icons-material/Send";
 import axios from "axios";
-
 import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 import { motion, AnimatePresence, useAnimation } from "framer-motion";
+import { toast } from "react-hot-toast";
 
 export default function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
@@ -24,10 +11,10 @@ export default function Chatbot() {
   ]);
   const [inputText, setInputText] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [sessionId, setSessionId] = useState(null); // ✅ track session id
+  const [sessionId, setSessionId] = useState(null);
   const chatEndRef = useRef(null);
 
-  // bounce controls
+  // Bounce controls for the header icon
   const bounceControls = useAnimation();
 
   const scrollToBottom = () => {
@@ -38,7 +25,6 @@ export default function Chatbot() {
     scrollToBottom();
   }, [messages]);
 
-  // trigger bounce when a new bot message arrives
   useEffect(() => {
     const last = messages[messages.length - 1];
     if (last && last.from === "bot") {
@@ -50,23 +36,33 @@ export default function Chatbot() {
   }, [messages]);
 
   const toggleChat = async () => {
-    if (isOpen) {
-      // user is closing the chat – clear history on server
+    // 1. Optimize: Close immediately (UI first)
+    const wasOpen = isOpen;
+    setIsOpen(!isOpen);
+
+    if (wasOpen) {
+      // 2. Cleanup in background
       try {
-        await axios.delete(`https://pulastya0-sih-ml-backend.hf.space/chat/${sessionId}/delete`, {
-          session_id: sessionId, // ✅ send session id to clear server-side
-        });
-        // also clear local messages + reset session
-        setMessages([
-          { from: "bot", text: "Hello! Ask me for internship recommendations." },
-        ]);
-        setSessionId(null);
+        if (sessionId) {
+          // We don't await this to block UI, but we catch errors if needed
+          axios.delete(`https://pulastya0-sih-ml-backend.hf.space/chat/${sessionId}/delete`, {
+            session_id: sessionId,
+          }).catch(err => console.error("Background cleanup error:", err));
+        }
+
+        // Clear local state after a slight delay or immediately - 
+        // effectively resetting for next open
+        setTimeout(() => {
+          setMessages([
+            { from: "bot", text: "Hello! Ask me for internship recommendations." },
+          ]);
+          setSessionId(null);
+        }, 500);
+
       } catch (err) {
         console.error("Error clearing chat history:", err);
       }
     }
-
-    setIsOpen(!isOpen);
   };
 
   const handleSendMessage = async () => {
@@ -83,16 +79,14 @@ export default function Chatbot() {
         "https://pulastya0-sih-ml-backend.hf.space/chat",
         {
           query: currentInput,
-          session_id: sessionId, // ✅ attach session id if exists
+          session_id: sessionId,
         }
       );
 
       console.log("API response:", response.data);
 
-      // ✅ if new session id is returned, store it
       if (!sessionId && response.data.session_id) {
         setSessionId(response.data.session_id);
-        console.log("New session started:", response.data.session_id);
       }
 
       const botResponse = {
@@ -112,6 +106,7 @@ export default function Chatbot() {
         text: "Sorry, I'm having trouble connecting. Please try again later.",
       };
       setMessages((prev) => [...prev, errorMessage]);
+      toast.error("Failed to connect to chatbot service.");
     } finally {
       setIsLoading(false);
     }
@@ -124,191 +119,117 @@ export default function Chatbot() {
   };
 
   return (
-    <Box sx={{ position: "fixed", bottom: 24, right: 24, zIndex: 1000 }}>
-      {isOpen && (
-        <Card
-          sx={{
-            width: 420, // <- wider box
-            height: 500,
-            display: "flex",
-            flexDirection: "column",
-            borderRadius: 3,
-            boxShadow: "0 8px 16px rgba(0,0,0,0.2)",
-            mb: 2,
-            position: "fixed",
-            bottom: 24,
-            right: 24,
-            zIndex: 1000,
-          }}
-        >
-          <CardHeader
-            avatar={
-              <motion.div animate={bounceControls}>
-                <DotLottieReact
-                  src="https://lottie.host/e3d50330-e364-4006-ac37-5fe2bc1fbda5/OXV0LKA4ft.lottie"
-                  loop
-                  autoplay
-                  style={{ width: 40, height: 40 }}
-                />
-              </motion.div>
-            }
-            title="Internship Helper"
-            titleTypographyProps={{ fontWeight: "bold", fontSize: "1.1rem" }}
-            action={
-              <IconButton onClick={toggleChat}>
-                <CloseIcon />
-              </IconButton>
-            }
-            sx={{
-              background: "linear-gradient(135deg, #1e40af, #2563eb)",
-              color: "white",
-            }}
-          />
-          {/* Message area */}
-      <CardContent
-        sx={{
-          flex: 1,
-          display: "flex",
-          flexDirection: "column",
-          gap: 1,
-          overflowY: "auto",
-          pb: 1,
-        }}
-      >
-        {messages.map((msg, index) => (
-          <Box
-            key={index}
-            sx={{
-              alignSelf: msg.from === "user" ? "flex-end" : "flex-start",
-              bgcolor: msg.from === "user" ? "#1976d2" : "#f1f1f1",
-              color: msg.from === "user" ? "white" : "black",
-              px: 1.5,
-              py: 1,
-              borderRadius: 2,
-              maxWidth: "80%",
-            }}
-          >
-            <Typography variant="body2">{msg.text}</Typography>
-          </Box>
-        ))}
-
-        {isLoading && (
-          <Box sx={{ display: "flex", alignItems: "center", mb: 1.5 }}>
-            <DotLottieReact
-              src="https://lottie.host/e3d50330-e364-4006-ac37-5fe2bc1fbda5/OXV0LKA4ft.lottie"
-              loop
-              autoplay
-              style={{ width: 30, height: 30, marginRight: 8 }}
-            />
-            <Box sx={{ display: "flex", gap: 0.5 }}>
-              <motion.div
-                animate={{ y: [0, -3, 0] }}
-                transition={{ repeat: Infinity, duration: 0.4, delay: 0 }}
-                style={{
-                  width: 6,
-                  height: 6,
-                  background: "#aaa",
-                  borderRadius: "50%",
-                }}
-              />
-              <motion.div
-                animate={{ y: [0, -3, 0] }}
-                transition={{ repeat: Infinity, duration: 0.4, delay: 0.2 }}
-                style={{
-                  width: 6,
-                  height: 6,
-                  background: "#aaa",
-                  borderRadius: "50%",
-                }}
-              />
-              <motion.div
-                animate={{ y: [0, -3, 0] }}
-                transition={{ repeat: Infinity, duration: 0.4, delay: 0.4 }}
-                style={{
-                  width: 6,
-                  height: 6,
-                  background: "#aaa",
-                  borderRadius: "50%",
-                }}
-              />
-            </Box>
-          </Box>
-        )}
-         <div ref={chatEndRef} />
-      </CardContent>
-          <Divider />
-
-          {/* Input with sloth-style robot hanging */}
-          <Box
-            sx={{
-              position: "relative",
-              p: 1.5,
-              display: "flex",
-              alignItems: "center",
-              bgcolor: "white",
-            }}
-          >
-            <TextField
-              fullWidth
-              size="small"
-              variant="outlined"
-              placeholder="Type a message..."
-              value={inputText}
-              onChange={(e) => setInputText(e.target.value)}
-              onKeyPress={handleKeyPress}
-              disabled={isLoading}
-              sx={{ "& .MuiOutlinedInput-root": { borderRadius: 5 } }}
-            />
-            <IconButton
-              color="primary"
-              onClick={handleSendMessage}
-              disabled={isLoading}
-              sx={{ ml: 1 }}
-            >
-              <SendIcon />
-            </IconButton>
-          </Box>
-        </Card>
-      )}
-
-      {/* Floating Robot Button */}
+    <div className="fixed bottom-6 right-6 z-[1000] font-sans">
       <AnimatePresence>
-        {!isOpen && (
+        {isOpen && (
           <motion.div
-            key="robotFab"
-            initial={{ y: 0, scale: 1, opacity: 1 }}
-            animate={{ y: 0, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.5 }}
-            style={{
-              position: "fixed",
-              bottom: 24,
-              right: 24,
-              zIndex: 1001,
-            }}
+            initial={{ opacity: 0, y: 20, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.9 }}
+            transition={{ duration: 0.2 }}
+            className="w-[400px] h-[550px] glass border border-white/20 rounded-3xl shadow-2xl flex flex-col overflow-hidden mb-4 bg-[#1a103c]/90 backdrop-blur-xl"
           >
-            <Fab
-              color="primary"
-              aria-label="chat"
-              onClick={toggleChat}
-              sx={{
-                background: "white",
-                width: 64,
-                height: 64,
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
-              <DotLottieReact
-                src="https://lottie.host/e3d50330-e364-4006-ac37-5fe2bc1fbda5/OXV0LKA4ft.lottie"
-                loop
-                autoplay
-                style={{ width: 60, height: 60 }}
-              />
-            </Fab>
+            {/* Header */}
+            <div className="p-4 bg-gradient-to-r from-primary to-purple-600 flex items-center justify-between text-white shadow-lg shrink-0">
+              <div className="flex items-center gap-3">
+                <motion.div animate={bounceControls} className="bg-white/20 p-1.5 rounded-full backdrop-blur-md">
+                  <DotLottieReact
+                    src="https://lottie.host/e3d50330-e364-4006-ac37-5fe2bc1fbda5/OXV0LKA4ft.lottie"
+                    loop
+                    autoplay
+                    style={{ width: 32, height: 32 }}
+                  />
+                </motion.div>
+                <div>
+                  <h3 className="font-bold text-lg leading-tight">InternHelper</h3>
+                  <p className="text-xs opacity-70">AI-Powered Assistant</p>
+                </div>
+              </div>
+              <button
+                onClick={toggleChat}
+                className="p-2 hover:bg-white/20 rounded-full transition-colors"
+              >
+                <span className="material-symbols-outlined text-xl">close</span>
+              </button>
+            </div>
+
+            {/* Messages */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-3 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
+              {messages.map((msg, index) => (
+                <div
+                  key={index}
+                  className={`flex ${msg.from === "user" ? "justify-end" : "justify-start"}`}
+                >
+                  <div
+                    className={`max-w-[85%] px-4 py-3 rounded-2xl text-sm leading-relaxed ${msg.from === "user"
+                      ? "bg-primary text-white rounded-tr-sm shadow-lg shadow-primary/20"
+                      : "bg-white/10 text-white border border-white/10 rounded-tl-sm backdrop-blur-md"
+                      }`}
+                  >
+                    {msg.text}
+                  </div>
+                </div>
+              ))}
+
+              {isLoading && (
+                <div className="flex justify-start">
+                  <div className="bg-white/10 px-4 py-3 rounded-2xl rounded-tl-sm backdrop-blur-md flex items-center gap-2">
+                    <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: "0s" }}></div>
+                    <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce" style={{ animationDelay: "0.2s" }}></div>
+                    <div className="w-2 h-2 bg-pink-500 rounded-full animate-bounce" style={{ animationDelay: "0.4s" }}></div>
+                  </div>
+                </div>
+              )}
+              <div ref={chatEndRef} />
+            </div>
+
+            {/* Input Area */}
+            <div className="p-4 border-t border-white/10 bg-white/5 backdrop-blur-md shrink-0">
+              <div className="relative flex items-center gap-2">
+                <input
+                  type="text"
+                  value={inputText}
+                  onChange={(e) => setInputText(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  disabled={isLoading}
+                  placeholder="Ask for an internship..."
+                  className="w-full bg-white/10 border border-white/10 rounded-xl px-4 py-3 pr-12 text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all font-medium text-sm"
+                />
+                <button
+                  onClick={handleSendMessage}
+                  disabled={isLoading || !inputText.trim()}
+                  className="absolute right-2 p-2 bg-primary text-white rounded-lg hover:bg-primary/80 disabled:opacity-50 disabled:hover:bg-primary transition-all shadow-lg shadow-primary/20"
+                >
+                  <span className="material-symbols-outlined text-[20px] block">send</span>
+                </button>
+              </div>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
-    </Box>
+
+      {/* FAB Button */}
+      <AnimatePresence>
+        {!isOpen && (
+          <motion.button
+            key="fab"
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0, opacity: 0 }}
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            onClick={toggleChat}
+            className="group relative focus:outline-none"
+          >
+            <div className="relative w-16 h-16 flex items-center justify-center bg-gradient-to-tr from-primary to-purple-600 rounded-full shadow-lg shadow-primary/30 group-hover:shadow-primary/50 transition-all duration-300">
+              <span className="material-symbols-outlined text-4xl text-white">smart_toy</span>
+
+              {/* Pulse Ring */}
+              <div className="absolute inset-0 border-2 border-white/20 rounded-full animate-ping opacity-20"></div>
+            </div>
+          </motion.button>
+        )}
+      </AnimatePresence>
+    </div>
   );
 }

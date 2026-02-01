@@ -1,253 +1,46 @@
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  Button,
-  TextField,
-  Link,
-  Grid,
-  Box,
-  Typography,
-  Paper,
-  InputAdornment,
-  Container,
-  AppBar,
-  Toolbar,
-  // Retained imports for the menu structure, though simplified in AppNavbar
-  IconButton, 
-  Menu,
-  MenuItem,
-} from "@mui/material";
-
-// Material Icons/Fa-Solid Equivalents
-import Visibility from "@mui/icons-material/Visibility";
-import VisibilityOff from "@mui/icons-material/VisibilityOff";
-import LoginIcon from "@mui/icons-material/Login";
-import PersonAddIcon from "@mui/icons-material/PersonAdd";
-import HomeIcon from "@mui/icons-material/Home";
-import InfoIcon from "@mui/icons-material/Info"; // Used for About
-import MenuIcon from "@mui/icons-material/Menu"; // Hamburger menu icon
-// Other icons (retained for footer/main content)
-import DescriptionIcon from "@mui/icons-material/Description"; 
-import LiveHelpIcon from "@mui/icons-material/LiveHelp";
-import ContactMailIcon from "@mui/icons-material/ContactMail";
-
-import AshokChakra from "../assets/Ashoka_Chakra.svg";
 import { toast } from "react-hot-toast";
 
-// --- GLOBAL STYLES & CONSTANTS ---
-const CORE_NAVY_COLOR = "hsla(216, 90%, 39%, 1.00)"; // Main blue color
-
-// Updated Button Style (Single, contained style for all nav items)
-const NavbarButtonStyles = {
-  backgroundColor: CORE_NAVY_COLOR,
-  color: "#fff",
-  textTransform: "none",
-  fontWeight: "bold",
-  minWidth: 100,
-  px: 2,
-  py: 1,
-  borderRadius: '4px',
-  transition: "all 0.2s ease-in-out",
-  "&:hover": {
-    backgroundColor: "hsla(216, 90%, 20%, 1.00)",
-    boxShadow: "0 2px 4px rgba(0, 0, 0, 0.2)",
-  },
-};
-
-// Footer Styles (Retained)
-const FooterStyles = {
-    mainFooter: { bgcolor: CORE_NAVY_COLOR, color: "#fff", py: 6, },
-    heading: { fontWeight: "bold", fontSize: "1.1rem", mb: 2, color: "rgba(255, 255, 255, 0.9)", },
-    link: { display: "block", textDecoration: "none", color: "rgba(255, 255, 255, 0.7)", mb: 1, fontSize: "0.9rem", transition: "color 0.2s", "&:hover": { color: "#fff", }, },
-    linkWithIcon: { display: "flex", alignItems: "flex-start", textDecoration: "none", color: "rgba(255, 255, 255, 0.7)", mb: 1.5, fontSize: "0.9rem", transition: "color 0.2s", "&:hover": { color: "#fff", }, "& i": { mr: 1, mt: "3px", fontSize: "0.8rem", }},
-    copyrightBar: { borderTop: "1px solid rgba(255, 255, 255, 0.1)", pt: 2, mt: 4, fontSize: "0.85rem", color: "rgba(255, 255, 255, 0.7)", },
-    govLogo: { width: 30, height: 30, mr: 1, filter: "invert(100%)", }
-};
-
-const quickLinks = [
-    { label: "Guidelines & Instructions", icon: <i className="fa-solid fa-file-alt" />, href: "#" },
-    { label: "Eligibility Criteria", icon: <i className="fa-solid fa-graduation-cap" />, href: "#" },
-    { label: "Application Process", icon: <i className="fa-solid fa-list-check" />, href: "#" },
-    { label: "Frequently Asked Questions", icon: <i className="fa-solid fa-circle-question" />, href: "#" },
-];
-
-const governmentLinks = [
-    { label: "India.gov.in", href: "https://www.india.gov.in" },
-    { label: "Ministry of Corporate Affairs", href: "https://www.mca.gov.in" },
-    { label: "Digital India", href: "https://digitalindia.gov.in" },
-    { label: "MyGov.in", href: "https://www.mygov.in" },
-];
-
-
-// --- MODIFIED APP NAVBAR COMPONENT (Single-Row, Button-Style) ---
-
-// Navigation Items for the main row
-const navItems = [
-  { label: "Register", path: "/signup" },
-];
-
-function AppNavbar({ navigate }) {
-  // Mobile menu state and handlers
-  const [anchorEl, setAnchorEl] = useState(null);
-  const open = Boolean(anchorEl);
-
-  const handleClick = (event) => { setAnchorEl(event.currentTarget); };
-  const handleClose = () => { setAnchorEl(null); };
-  const handleNavClick = (path) => { navigate(path); handleClose(); };
-
-  return (
-    <>
-      {/* 1. Main AppBar (Logo, Title, All Buttons) */}
-      <AppBar
-        position="static"
-        sx={{
-          backgroundColor: "#fff",
-          color: "#000",
-          boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
-        }}
-      >
-        <Toolbar sx={{ display: "flex", justifyContent: "space-between", px: { xs: 2, md: 6 }, py: 1 }}>
-          
-          {/* Left: Logo + Title */}
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1, cursor: 'pointer' }} onClick={() => navigate("/")}>
-            <img
-              src={AshokChakra}
-              alt="Ashok Chakra"
-              style={{ width: 200, height: 55 }}
-            />
-            <Box>
-                <Typography variant="h6" fontWeight="bold" color="#000" sx={{ fontSize: { xs: '0.9rem', sm: '1.25rem' }, lineHeight: 1.2 }}>
-                    PM Internship Scheme
-                </Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.75rem', lineHeight: 1, display: { xs: 'none', sm: 'block' } }}>
-                    Ministry of Corporate Affairs, Government of India
-                </Typography>
-            </Box>
-          </Box>
-
-          {/* Right: All Navigation Buttons (Desktop) */}
-          <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center', gap: 2 }}>
-            {navItems.map((item) => (
-                <Button
-                    key={item.label}
-                    variant="contained"
-                    sx={NavbarButtonStyles}
-                    onClick={() => navigate(item.path)}
-                >
-                    {item.label}
-                </Button>
-            ))}
-          </Box>
-
-          {/* Mobile Hamburger Menu Button (xs/sm only) */}
-          <IconButton
-              aria-label="menu"
-              onClick={handleClick}
-              sx={{ display: { xs: 'block', md: 'none' }, color: CORE_NAVY_COLOR }}
-          >
-              <MenuIcon />
-          </IconButton>
-        </Toolbar>
-        
-        {/* The solid blue bar underneath the main navigation in the screenshot */}
-        <Box sx={{ bgcolor: CORE_NAVY_COLOR, height: 20 }}></Box>
-      </AppBar>
-
-      {/* Mobile Menu Dropdown for all navigation links (xs/sm only) */}
-      <Menu
-        anchorEl={anchorEl}
-        open={open}
-        onClose={handleClose}
-        MenuListProps={{ 'aria-labelledby': 'basic-button' }}
-      >
-        {navItems.map((item) => (
-            <MenuItem key={item.label} onClick={() => handleNavClick(item.path)}>
-                {item.label}
-            </MenuItem>
-        ))}
-      </Menu>
-    </>
-  );
-}
-
-// --- APP FOOTER COMPONENT (Remains Unchanged) ---
-
-function AppFooter() {
-    return (
-        <Box component="footer" sx={FooterStyles.mainFooter}>
-            <Container>
-                <Grid container spacing={4}>
-                    <Grid item xs={12} sm={6} md={3}>
-                        <Typography sx={FooterStyles.heading}>PM Internship Scheme</Typography>
-                        <Typography variant="body2" color="rgba(255, 255, 255, 0.7)" sx={{ mb: 2 }}>
-                            Bridging the gap between academic learning and industry requirements through quality internship opportunities in India's leading companies.
-                        </Typography>
-                        <Box sx={{ display: 'flex', alignItems: 'center', mt: 2 }}>
-                            <img src={AshokChakra} alt="Ashok Stambh" style={FooterStyles.govLogo} />
-                            <Typography variant="body2" color="rgba(255, 255, 255, 0.7)">
-                                Ministry of Corporate Affairs
-                            </Typography>
-                        </Box>
-                    </Grid>
-                    <Grid item xs={6} sm={6} md={3}>
-                        <Typography sx={FooterStyles.heading}>Quick Links</Typography>
-                        {quickLinks.map((link, index) => (
-                            <Box component="a" href={link.href} key={index} sx={FooterStyles.linkWithIcon}><i className={link.icon.props.className} />{link.label}</Box>
-                        ))}
-                    </Grid>
-                    <Grid item xs={6} sm={6} md={3}>
-                        <Typography sx={FooterStyles.heading}>Support</Typography>
-                        <Box sx={FooterStyles.linkWithIcon}><i className="fa-solid fa-envelope" /> support@pminternship.mca.gov.in</Box>
-                        <Box sx={FooterStyles.linkWithIcon}><i className="fa-solid fa-phone" /> 1800-123-456 (Toll Free)</Box>
-                        <Box sx={FooterStyles.linkWithIcon}><i className="fa-solid fa-location-dot" /> 
-                            <Box>Ministry of Corporate Affairs<br />Shastri Bhawan, New Delhi - 110001</Box>
-                        </Box>
-                    </Grid>
-                    <Grid item xs={12} sm={6} md={3}>
-                        <Typography sx={FooterStyles.heading}>Government Links</Typography>
-                        {governmentLinks.map((link, index) => (
-                            <Box component="a" href={link.href} key={index} target="_blank" rel="noopener noreferrer" sx={FooterStyles.link}>{link.label}</Box>
-                        ))}
-                    </Grid>
-                </Grid>
-                <Box sx={FooterStyles.copyrightBar}>
-                    <Grid container justifyContent="space-between" alignItems="center">
-                        <Grid item xs={12} md={6} sx={{ order: { xs: 2, md: 1 } }}>
-                            <Typography variant="body2" component="span">© 2024 Government of India. All rights reserved.</Typography>
-                        </Grid>
-                        <Grid item xs={12} md={6} sx={{ display: 'flex', gap: 3, order: { xs: 1, md: 2 }, mb: { xs: 2, md: 0 }, justifyContent: { xs: 'flex-start', md: 'flex-end' } }}>
-                            <Box component="a" href="#" sx={FooterStyles.link} style={{ display: 'inline' }}>Privacy Policy</Box>
-                            <Box component="a" href="#" sx={FooterStyles.link} style={{ display: 'inline' }}>Terms of Use</Box>
-                            <Box component="a" href="#" sx={FooterStyles.link} style={{ display: 'inline' }}>Accessibility</Box>
-                            <Box component="a" href="#" sx={FooterStyles.link} style={{ display: 'inline' }}>Sitemap</Box>
-                        </Grid>
-                    </Grid>
-                </Box>
-            </Container>
-        </Box>
-    );
-}
-
-
-// --- MAIN LOGIN PAGE COMPONENT ---
 export default function LoginPage() {
-  // Retaining original state and logic variables
+  const navigate = useNavigate();
+  const [loginMethod, setLoginMethod] = useState("email");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [loginMethod, setLoginMethod] = useState("email"); 
-  const navigate = useNavigate();
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
-  // 🚨 ORIGINAL SUBMIT LOGIC IS RETAINED FOR REDIRECTION 🚨
+  // Dark mode logic matching HomePage
+  useEffect(() => {
+    if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      document.documentElement.classList.add('dark');
+      setIsDarkMode(true);
+    } else {
+      document.documentElement.classList.remove('dark');
+      setIsDarkMode(false);
+    }
+  }, []);
+
+  const toggleDarkMode = () => {
+    if (isDarkMode) {
+      document.documentElement.classList.remove('dark');
+      localStorage.theme = 'light';
+      setIsDarkMode(false);
+    } else {
+      document.documentElement.classList.add('dark');
+      localStorage.theme = 'dark';
+      setIsDarkMode(true);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const loginValue = loginMethod === 'email' ? email : '9876543210';
-    
+    const loginValue = loginMethod === 'email' ? email : '9876543210'; // logic from old page
+
     try {
       const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: loginValue, password }), 
+        body: JSON.stringify({ email: loginValue, password }),
       });
 
       const data = await res.json();
@@ -255,8 +48,7 @@ export default function LoginPage() {
       if (res.ok) {
         localStorage.setItem("user", JSON.stringify(data.user));
         toast.success("Login successful! ✅");
-        // *** SUCCESSFUL REDIRECTION TO HOME PAGE ***
-        navigate("/home"); 
+        navigate("/home");
       } else {
         toast.error(data.message || "Invalid credentials ❌");
       }
@@ -266,272 +58,129 @@ export default function LoginPage() {
     }
   };
 
-  const handleDigiLockerLogin = () => {
-    const clientId = "YOUR_DIGILOCKER_CLIENT_ID"; 
-    const redirectUri = "http://localhost:3000/digilocker-callback";
-    const responseType = "code";
-    const scope = "openid profile";
-
-    const authUrl = `https://api.digitallocker.gov.in/public/oauth2/1/authorize?response_type=${responseType}&client_id=${clientId}&redirect_uri=${encodeURIComponent(
-      redirectUri
-    )}&scope=${encodeURIComponent(scope)}`;
-
-    toast.info("Redirecting to DigiLocker...");
-  };
-
   return (
-    <Box sx={{ minHeight: "100vh", bgcolor: "#f5f7fb", display: 'flex', flexDirection: 'column' }}>
-      {/* 1. Navbar Component (MODIFIED) */}
-      <AppNavbar navigate={navigate} />
-
-      {/* 2. Main Login Content Wrapper (Retained) */}
-      <Box
-        sx={{
-          py: 4,
-          flexGrow: 1, 
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          backgroundImage: "linear-gradient(180deg, #f5f7fb 0%, #e0e7f7 100%)", 
-        }}
-      >
-        <Container maxWidth="sm" sx={{ textAlign: "center", mt: 2, mb: 4 }}>
-          {/* Central Ashoka Chakra & Portal Title */}
-          <img
-            src={AshokChakra}
-            alt="Ashok Chakra"
-            style={{ width: 60, height: 60, opacity: 0.8 }}
-          />
-          <Typography variant="h5" fontWeight="bold" color={CORE_NAVY_COLOR} sx={{ mt: 1 }}>
-            PM Internship Portal
-          </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 4 }}>
-            Ministry of Corporate Affairs, Government of India
-          </Typography>
-        </Container>
-
-        {/* Login Form Card (Retained) */}
-        <Paper
-          elevation={4}
-          sx={{
-            p: { xs: 3, sm: 5 },
-            borderRadius: "12px",
-            width: { xs: "90%", sm: "450px" },
-            maxWidth: "450px",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-          }}
-        >
-          {/* Card Header */}
-          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-            <LoginIcon sx={{ color: CORE_NAVY_COLOR, mr: 1 }} />
-            <Typography component="h1" variant="h6" fontWeight="bold" color={CORE_NAVY_COLOR}>
-              Login
-            </Typography>
-          </Box>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-            Access your internship portal account
-          </Typography>
+    <div className="bg-background-light dark:bg-background-dark font-display text-[#130d1c] dark:text-white transition-colors duration-300 min-h-screen flex items-center justify-center overflow-x-hidden">
+      <div className="fixed inset-0 z-0 gradient-bg">
+        <div className="absolute inset-0 opacity-20 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '40px 40px' }}></div>
+        <div className="absolute top-20 left-[10%] text-white/20 floating-element hidden lg:block">
+          <span className="material-symbols-outlined text-[120px]">school</span>
+        </div>
+        <div className="absolute bottom-20 right-[10%] text-white/20 floating-element hidden lg:block" style={{ animationDelay: '-3s' }}>
+          <span className="material-symbols-outlined text-[100px]">rocket_launch</span>
+        </div>
+        <div className="absolute top-1/2 left-[5%] text-white/10 floating-element hidden lg:block" style={{ animationDelay: '-1.5s' }}>
+          <span className="material-symbols-outlined text-[80px]">work</span>
+        </div>
+      </div>
+      <div className="relative z-10 w-full max-w-[1200px] px-4 py-12 flex flex-col items-center">
+        <div className="mb-8 flex items-center gap-3">
+          <div className="size-10 text-white bg-primary rounded-xl flex items-center justify-center p-2 shadow-lg shadow-primary/30" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
+            <svg fill="currentColor" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+              <path d="M24 18.4228L42 11.475V34.3663C42 34.7796 41.7457 35.1504 41.3601 35.2992L24 42V18.4228Z"></path>
+              <path d="M24 8.18819L33.4123 11.574L24 15.2071L14.5877 11.574L24 8.18819ZM9 15.8487L21 20.4805V37.6263L9 32.9945V15.8487ZM27 37.6263V20.4805L39 15.8487V32.9945L27 37.6263ZM25.354 2.29885C24.4788 1.98402 23.5212 1.98402 22.646 2.29885L4.98454 8.65208C3.7939 9.08038 3 10.2097 3 11.475V34.3663C3 36.0196 4.01719 37.5026 5.55962 38.098L22.9197 44.7987C23.6149 45.0671 24.3851 45.0671 25.0803 44.7987L42.4404 38.098C43.9828 37.5026 45 36.0196 45 34.3663V11.475C45 10.2097 44.2061 9.08038 43.0155 8.65208L25.354 2.29885Z"></path>
+            </svg>
+          </div>
+          <h1 className="text-2xl font-black text-white tracking-tight">InternFinder</h1>
+        </div>
+        <div className="w-full max-w-[500px] glass bg-white dark:bg-[#1f162e] rounded-3xl p-8 md:p-12 shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-white/20">
+          <div className="text-center mb-10">
+            <h2 className="text-3xl md:text-4xl font-black mb-3 tracking-tight text-[#130d1c] dark:text-white">Welcome Back</h2>
+            <p className="text-slate-500 dark:text-slate-400">Access your InternFinder account to continue.</p>
+          </div>
 
           {/* Demo Credentials Box */}
-          <Box 
-            sx={{
-              p: 1.5,
-              mb: 3,
-              bgcolor: 'hsla(48, 100%, 90%, 1)',
-              border: '1px solid hsla(48, 100%, 70%, 1)',
-              borderRadius: '8px',
-              width: '100%',
-              fontSize: '0.85rem',
-            }}
-          >
-            <Typography variant="body2" fontWeight="bold" sx={{ color: 'hsla(30, 80%, 30%, 1)' }}>
-              Demo Credentials:
-            </Typography>
-            <Typography variant="body2" sx={{ color: 'hsla(30, 80%, 30%, 1)' }}>
-              Email: <Link sx={{fontWeight: 'bold'}}>demo@example.com</Link> 
-            </Typography>
-            <Typography variant="body2" sx={{ color: 'hsla(30, 80%, 30%, 1)' }}>
-              Password: <Link sx={{fontWeight: 'bold'}}>demo123</Link>
-            </Typography>
-          </Box>
+          <div className="p-3 mb-6 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/50 rounded-lg text-sm">
+            <p className="font-bold text-amber-800 dark:text-amber-400">Demo Credentials:</p>
+            <p className="text-amber-800 dark:text-amber-400">Email: <span className="font-bold">demo@example.com</span></p>
+            <p className="text-amber-800 dark:text-amber-400">Password: <span className="font-bold">demo123</span></p>
+          </div>
 
-          {/* Tab Switcher: Email ID / Mobile No. */}
-          
+          <form className="space-y-5" onSubmit={handleSubmit}>
+            <div className="space-y-2">
+              <label className="text-xs font-bold uppercase tracking-widest opacity-60 px-1">Email Address</label>
+              <div className="relative group">
+                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors">alternate_email</span>
+                <input
+                  className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl py-4 pl-12 pr-4 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-slate-400"
+                  placeholder="name@example.com"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-bold uppercase tracking-widest opacity-60 px-1">Password</label>
+              <div className="relative group">
+                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors">lock</span>
+                <input
+                  className="w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl py-4 pl-12 pr-4 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-slate-400"
+                  placeholder="••••••••"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+              </div>
+            </div>
 
-          <Box component="form" sx={{ width: "100%" }} onSubmit={handleSubmit}>
-            {/* Email/Mobile Input */}
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              label={loginMethod === 'email' ? "Email ID *" : "Mobile No. *"}
-              placeholder={loginMethod === 'email' ? "Enter your email ID" : "Enter your mobile number"}
-              value={loginMethod === 'email' ? email : "9876543210"} 
-              onChange={(e) => loginMethod === 'email' ? setEmail(e.target.value) : null} 
-              type={loginMethod === 'email' ? "email" : "tel"}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <i className={loginMethod === 'email' ? "fa-solid fa-user" : "fa-solid fa-mobile-alt"} style={{fontSize: '0.9rem'}} />
-                  </InputAdornment>
-                ),
-              }}
-              variant="outlined"
-            />
+            <div className="flex items-center justify-between text-xs">
+              <label className="flex items-center gap-2 cursor-pointer text-slate-500 hover:text-primary transition-colors">
+                <input type="checkbox" className="rounded border-slate-300 text-primary focus:ring-primary" />
+                <span>Remember me</span>
+              </label>
+              <a href="#" className="font-bold text-primary hover:underline">Forgot Password?</a>
+            </div>
 
-            {/* Password Input */}
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              label="Password *"
-              placeholder="Enter your password"
-              type={showPassword ? "text" : "password"}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <i className="fa-solid fa-lock" style={{fontSize: '0.9rem'}} />
-                  </InputAdornment>
-                ),
-                endAdornment: (
-                  <InputAdornment
-                    position="end"
-                    onClick={() => setShowPassword(!showPassword)}
-                    style={{ cursor: "pointer" }}
-                  >
-                    {showPassword ? <VisibilityOff /> : <Visibility />}
-                  </InputAdornment>
-                ),
-              }}
-              variant="outlined"
-            />
-
-            {/* Remember me & Forgot Password */}
-            <Grid container justifyContent="space-between" alignItems="center" sx={{ mt: 1 }}>
-                <Grid item>
-                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                        <input type="checkbox" id="remember" name="remember" />
-                        <label htmlFor="remember" style={{ marginLeft: 4, fontSize: '0.875rem' }}>Remember me</label>
-                    </Box>
-                </Grid>
-                <Grid item>
-                    <Link href="#" variant="body2" sx={{ color: CORE_NAVY_COLOR, fontWeight: 'bold' }}>
-                        Forgot Password?
-                    </Link>
-                </Grid>
-            </Grid>
-
-            {/* Sign In Button */}
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              size="large"
-              sx={{
-                mt: 3,
-                mb: 2,
-                py: 1.5,
-                fontSize: "1rem",
-                fontWeight: "bold",
-                borderRadius: "8px",
-                textTransform: "none",
-                background: CORE_NAVY_COLOR,
-                "&:hover": {
-                  background: "hsla(216, 90%, 20%, 1.00)",
-                },
-              }}
-            >
+            <button className="w-full bg-gradient-to-r from-primary to-[#4d21b3] text-white font-bold py-4 rounded-2xl shadow-xl shadow-primary/30 hover:shadow-primary/40 hover:scale-[1.02] active:scale-95 transition-all duration-300 mt-4 flex items-center justify-center gap-2" type="submit">
               Sign In
-            </Button>
+              <span className="material-symbols-outlined">login</span>
+            </button>
+          </form>
 
-            {/* OR line */}
-            <Box sx={{ display: "flex", alignItems: "center", my: 2 }}>
-              <Box sx={{ flex: 1, height: "1px", backgroundColor: "#ccc" }} />
-              <Typography variant="body2" sx={{ mx: 2, color: "#666", fontWeight: "bold" }}>
-                OR
-              </Typography>
-              <Box sx={{ flex: 1, height: "1px", backgroundColor: "#ccc" }} />
-            </Box>
-            
-            {/* DigiLocker Login Button */}
-            <Button
-              fullWidth
-              variant="outlined"
-              size="large"
-              startIcon={<DescriptionIcon />} 
-              sx={{
-                mt: 1,
-                py: 1.5,
-                fontSize: "1rem",
-                fontWeight: "bold",
-                borderRadius: "8px",
-                textTransform: "none",
-                border: "2px solid #000080",
-                color: "#000080",
-                "&:hover": {
-                  backgroundColor: "rgba(19,136,8,0.1)",
-                  borderColor: "#138808",
-                  color: "#138808",
-                },
-              }}
-              onClick={handleDigiLockerLogin}
-            >
-              Login with DigiLocker
-            </Button>
+          <div className="mt-8">
+            <div className="relative flex items-center py-4">
+              <div className="flex-grow border-t border-slate-200 dark:border-white/10"></div>
+              <span className="flex-shrink mx-4 text-xs font-bold uppercase tracking-widest opacity-40">Or login with</span>
+              <div className="flex-grow border-t border-slate-200 dark:border-white/10"></div>
+            </div>
+            <div className="grid grid-cols-2 gap-4 mt-4">
+              <button className="flex items-center justify-center gap-3 py-3 border border-slate-200 dark:border-white/10 rounded-2xl hover:bg-slate-50 dark:hover:bg-white/5 transition-colors" onClick={() => toast('Feature coming soon')}>
+                <svg className="size-5" viewBox="0 0 24 24">
+                  <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"></path>
+                  <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"></path>
+                  <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"></path>
+                  <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"></path>
+                </svg>
+                <span className="text-sm font-semibold">Google</span>
+              </button>
+              {/* DigiLocker Button (Replacing LinkedIn for Login context as per old page logic, but keeping style) */}
+              <button className="flex items-center justify-center gap-3 py-3 border border-slate-200 dark:border-white/10 rounded-2xl hover:bg-slate-50 dark:hover:bg-white/5 transition-colors" onClick={() => toast.info("Redirecting to DigiLocker...")}>
+                <span className="material-symbols-outlined text-blue-600">description</span>
+                <span className="text-sm font-semibold">DigiLocker</span>
+              </button>
+            </div>
+          </div>
 
-            {/* Register Now link */}
-            <Box sx={{ textAlign: 'center', my: 2 }}>
-                <Typography variant="body2" component="span">
-                    New to PM Internship Portal?
-                </Typography>
-                <Link
-                    component="button"
-                    type="button"
-                    variant="body2"
-                    sx={{ color: CORE_NAVY_COLOR, fontWeight: 'bold', ml: 0.5 }}
-                    onClick={() => navigate("/signup")}
-                >
-                    Register Now
-                </Link>
-            </Box>
-            
-             {/* Security Notice Box */}
-            <Box 
-                sx={{
-                    p: 1.5,
-                    mt: 3,
-                    bgcolor: 'hsla(48, 100%, 90%, 1)',
-                    border: '1px solid hsla(48, 100%, 70%, 1)',
-                    borderRadius: '8px',
-                    width: '100%',
-                    fontSize: '0.8rem',
-                    display: 'flex',
-                    alignItems: 'center',
-                }}
-            >
-                <i className="fa-solid fa-lock" style={{ color: 'hsla(30, 80%, 30%, 1)', marginRight: '8px' }}></i>
-                <Typography variant="body2" sx={{ color: 'hsla(30, 80%, 30%, 1)', fontStyle: 'italic' }}>
-                    **Security Notice:** Never share your login credentials. Always logout after use.
-                </Typography>
-            </Box>
-          </Box>
-        </Paper>
-        
-        {/* Helper Links (Help, Privacy, Terms) below the form */}
-        <Box sx={{ display: 'flex', gap: 2, mt: 4 }}>
-            <Link href="#" variant="body2" color="text.secondary">Help</Link>
-            <Link href="#" variant="body2" color="text.secondary">Privacy</Link>
-            <Link href="#" variant="body2" color="text.secondary">Terms</Link>
-        </Box>
-
-      </Box>
-
-      {/* 3. Footer Component */}
-      <AppFooter />
-    </Box>
+          <div className="mt-10 text-center">
+            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+              Don't have an account?
+              <button className="text-primary font-bold hover:underline transition-all ml-1" onClick={() => navigate('/signup')}>Register Now</button>
+            </p>
+          </div>
+        </div>
+        <div className="mt-8 flex flex-col items-center gap-6">
+          <button className="glass p-3 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors" onClick={toggleDarkMode}>
+            <span className="material-symbols-outlined text-[20px] block dark:hidden">dark_mode</span>
+            <span className="material-symbols-outlined text-[20px] hidden dark:block text-white">light_mode</span>
+          </button>
+          <div className="flex gap-8 text-xs font-medium text-white/40 uppercase tracking-widest">
+            <a className="hover:text-white transition-colors" href="#">Privacy Policy</a>
+            <a className="hover:text-white transition-colors" href="#">Terms of Service</a>
+            <a className="hover:text-white transition-colors" href="#">Support</a>
+          </div>
+        </div>
+      </div>
+      {/* Removed duplicate Chatbot floating button as App.jsx renders it globally */}
+    </div>
   );
 }

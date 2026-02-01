@@ -1,1014 +1,230 @@
-import { useEffect, useState } from "react";
-import {
-    Box,
-    Typography,
-    Container,
-    Grid,
-    Paper,
-    Button,
-    AppBar,
-    Toolbar,
-    // --- NEW IMPORTS FOR MOBILE MENU ---
-    IconButton,
-    Menu,
-    MenuItem,
-    Stack,
-    // --- NEW IMPORTS FOR DARK MODE ---
-    // Removed Switch since we are now using a fixed IconButton toggle
-} from "@mui/material";
-// --- NEW IMPORT FOR DARK MODE ICONS ---
-import DarkModeIcon from "@mui/icons-material/DarkMode";
-import LightModeIcon from "@mui/icons-material/LightMode";
-
-import MenuIcon from "@mui/icons-material/Menu"; // Import MenuIcon
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import AshokChakra from "../assets/Ashoka_Chakra.svg";
-import { styled } from "@mui/material/styles";
-import twentyOne from "../assets/21.png";
-import job from "../assets/job.png";
-import family from "../assets/family.png";
-import education from "../assets/education.png";
-import wallet from "../assets/wallet.png";
-import coin from "../assets/coin.png";
-import check from "../assets/check.png";
-import success from "../assets/success.png";
-
-
-// I'm assuming you have appropriate icons (like Material Icons or Font Awesome)
-// for the steps, but since I can't access them, I'll use placeholders.
-// For the final code, you should replace <i className="..." /> with actual icon components.
-
-const CORE_NAVY_COLOR = "hsla(216, 90%, 39%, 1.00)";
-
-// --- Define Base Colors for Theme Switching ---
-const LIGHT_BG = "#f5f7fb";
-const DARK_BG = "#121212";
-const LIGHT_PAPER_BG = "#fff";
-const DARK_PAPER_BG = "#1e1e1e";
-const LIGHT_TEXT = "#000";
-const DARK_TEXT = "#fff";
-// ---------------------------------------------
-
-// --- NEW DATA: Eligibility & Benefits (Fully Responsive) ---
-const eligibilityData = [
-    {
-        title: "Age",
-        value: "21-24 Years",
-        icon: <i className="fa-solid fa-calendar" />, // Placeholder Icon
-        note: <img
-            src={twentyOne}
-            alt="twentyOne"
-            style={{ width: 80, height: 80 }}
-        />,
-
-    },
-    {
-        title: "Job Status",
-        value: "Not Employed Full Time",
-        icon: <i className="fa-solid fa-briefcase" />, // Placeholder Icon
-        note: <img
-            src={job}
-            alt="job"
-            style={{ width: 80, height: 80 }}
-        />,
-    },
-    {
-        title: "Education",
-        value: "Not Enrolled Full Time",
-        icon: <i className="fa-solid fa-graduation-cap" />, // Placeholder Icon
-        note: <img
-            src={education}
-            alt="education"
-            style={{ width: 80, height: 80 }}
-        />,
-    },
-    {
-        title: "Family",
-        value: "No one is earning more than ₹8 Lakhs PA",
-        icon: <i className="fa-solid fa-user-group" />, // Placeholder Icon
-        note: <img
-            src={family}
-            alt="family"
-            style={{ width: 80, height: 80 }}
-        />,
-    },
-];
-
-const benefitsData = [
-    {
-        title: "Real-life Experience",
-        value: "12 months real-life experience in India's top companies",
-        icon: <i className="fa-solid fa-briefcase" />, // Placeholder Icon
-        note: <img
-            src={job}
-            alt="job"
-            style={{ width: 80, height: 80 }}
-        />,
-    },
-    {
-        title: "Financial Assistance",
-        value: "Monthly assistance of ₹4500 by Government of India and ₹500 by industry",
-        icon: <i className="fa-solid fa-wallet" />, // Placeholder Icon
-        note: <img
-            src={wallet}
-            alt="wallet"
-            style={{ width: 80, height: 80 }}
-        />,
-    },
-    {
-        title: "One-time Grant",
-        value: "One-time Grant of ₹6000 for incidentals",
-        icon: <i className="fa-solid fa-coins" />, // Placeholder Icon
-        note: <img
-            src={coin}
-            alt="coin"
-            style={{ width: 80, height: 80 }}
-        />,
-    },
-    {
-        title: "Sector Selectivity",
-        value: "Select from Various Sectors and from top Companies of India",
-        icon: <i className="fa-solid fa-cubes" />, // Placeholder Icon
-        note: <img
-            src={check}
-            alt="check"
-            style={{ width: 80, height: 80 }}
-        />,
-    },
-];
-
-const EligibilityCardStyles = {
-    card: (isDarkMode) => ({
-        p: 3,
-        borderRadius: "12px",
-        transition: "box-shadow 0.3s, transform 0.3s",
-        border: "1px solid #e0e0e0",
-        height: "80%",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        textAlign: "center",
-        bgcolor: isDarkMode ? DARK_PAPER_BG : LIGHT_PAPER_BG, // Theme-dependent background
-        width: "12vw",
-
-        "&:hover": {
-            boxShadow: "0 8px 16px rgba(0, 0, 0, 0.1)",
-            transform: "translateY(-5px)",
-            backgroundColor: isDarkMode ? "#333" : "hsla(216, 90%, 95%, 1.00)",
-        },
-    }),
-    // Styling for Eligibility icons (Orange theme)
-    iconBox: (isBenefit = false) => ({
-        width: isBenefit ? 50 : 80,
-        height: isBenefit ? 50 : 80,
-        borderRadius: '50%',
-        bgcolor: "hsla(216, 90%, 90%, 1.00)", // Very light orange/yellow background
-        color: CORE_NAVY_COLOR,
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        fontSize: isBenefit ? '1.5rem' : '2rem',
-        mb: 2,
-
-    }),
-    // Styling for Benefits icons (Blue theme)
-    benefitIconBox: {
-        width: 70,
-        height: 70,
-        borderRadius: '50%',
-        bgcolor: 'hsla(216, 90%, 39%, 0.1)', // Light Navy background
-        color: CORE_NAVY_COLOR,
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        fontSize: '2rem',
-        mb: 2,
-    },
-    title: {
-        fontWeight: "bold",
-        fontSize: "1.1rem",
-        color: CORE_NAVY_COLOR,
-        mb: 1,
-    },
-    value: (isDarkMode) => ({
-        color: isDarkMode ? 'rgba(255, 255, 255, 0.7)' : 'text.secondary', // Adjusted for better dark mode visibility
-        fontSize: '0.95rem',
-        lineHeight: 1.5,
-        minHeight: '40px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-    }),
-    eligibilitySection: (isDarkMode) => ({
-        bgcolor: isDarkMode ? DARK_BG : LIGHT_PAPER_BG, // Theme-dependent background
-        py: 5,
-    }),
-};
-// ------------------------
-// --- SUCCESS STORIES DATA ---
-const successStories = [
-    {
-        name: "Priya Sharma",
-        title: "Software Engineer",
-        company: "Google India",
-        quote:
-            "\"The PM Internship gave me hands-on experience that no classroom could provide. I learned real world skills and got placed at Google right after graduation.\"",
-        note:<img
-            src={success}
-            alt="success"
-            style={{ width: 80, height: 80 }}
-        />,
-    },
-    {
-        name: "Rahul Verma",
-        title: "Product Manager",
-        company: "Flipkart",
-        quote:
-            "\"Working with industry experts during my internship opened up career paths I never imagined. The mentorship and exposure were invaluable.\"",
-        note:<img
-            src={success}
-            alt="success"
-            style={{ width: 80, height: 80 }}
-        />,
-    },
-    {
-        name: "Anita Patel",
-        title: "Data Analyst",
-        company: "Microsoft India",
-        quote:
-            "\"The structured program helped me transition from theoretical knowledge to practical application. I'm now working on cutting edge AI projects at Microsoft.\"",
-        note:<img
-            src={success}
-            alt="success"
-            style={{ width: 80, height: 80 }}
-        />,
-    },
-    {
-        name: "Vikram Singh",
-        title: "Marketing Specialist",
-        company: "Amazon",
-        quote:
-            "\"The internship honed my strategic thinking and campaign management skills. Now, I'm driving successful marketing initiatives at Amazon.\"",
-        note:<img
-            src={success}
-            alt="success"
-            style={{ width: 80, height: 80 }}
-        />,
-    },
-    {
-        name: "Deepa Devi",
-        title: "UX Designer",
-        company: "Adobe",
-        quote:
-            "\"Learning from senior designers and applying principles to real products was incredible. My internship directly led to my role at Adobe.\"",
-        note:<img
-            src={success}
-            alt="success"
-            style={{ width: 80, height: 80 }}
-        />,
-    },
-    {
-        name: "Arjun Reddy",
-        title: "Operations Lead",
-        company: "Ola Cabs",
-        quote:
-            "\"The fast-paced environment of the internship taught me invaluable lessons in logistics and operations. I'm thriving at Ola Cabs thanks to that foundation.\"",
-        note:<img
-            src={success}
-            alt="success"
-            style={{ width: 80, height: 80 }}
-        />,
-    },
-];
-
-const NavyButtonStyles = {
-    backgroundColor: CORE_NAVY_COLOR,
-    color: "#fff",
-    border: `2px solid #0a53be`,
-    textTransform: "none",
-    fontWeight: "bold",
-    px: 3,
-    py: 1,
-    transition: "all 0.2s ease-in-out",
-    "&:hover": {
-        backgroundColor: "hsla(216, 90%, 20%, 1.00)",
-        transform: "translateY(-2px)",
-        border: "2px solid hsla(216, 90%, 20%, 1.00)",
-        boxShadow: "0 4px 8px hsla(0, 0%, 0%, 0.25)",
-    },
-};
-
-const dashboardBtn = {
-    backgroundColor: "#fff",
-    color: CORE_NAVY_COLOR,
-    border: `2px solid ${CORE_NAVY_COLOR}`,
-    textTransform: "none",
-    fontWeight: "bold",
-    px: 3,
-    py: 1,
-    transition: "all 0.2s ease-in-out",
-    "&:hover": {
-        backgroundColor: "hsla(216, 90%, 20%, 1.00)",
-        transform: "translateY(-5px)",
-        border: "2px solid hsla(216, 90%, 20%, 1.00)",
-        boxShadow: "0 4px 8px hsla(0, 0%, 0%, 0.25)",
-        color: "#fff",
-    },
-};
-
-// --- SUCCESS STORY CARD & CAROUSEL STYLES ---
-const SuccessStoryStyles = {
-    card: (isDarkMode) => ({
-        p: 3,
-        borderRadius: "12px",
-        boxShadow: "0 4px 10px rgba(0, 0, 0, 0.05)",
-        // --- RESPONSIVE FIX 2: Fixed width for mobile cards to enable smooth scroll ---
-        minWidth: { xs: "90vw", sm: "400px", md: "380px" },
-        maxWidth: { xs: "90vw", sm: "400px", md: "380px" },
-        height: "auto",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        textAlign: "center",
-        mx: 2,
-        bgcolor: isDarkMode ? DARK_PAPER_BG : LIGHT_PAPER_BG, // Theme-dependent background
-        flexShrink: 0,
-    }),
-    avatar: {
-        width: 80,
-        height: 80,
-        borderRadius: "50%",
-        mb: 2,
-        border: `2px solid ${CORE_NAVY_COLOR}`,
-        objectFit: 'cover',
-    },
-    name: {
-        fontWeight: "bold",
-        fontSize: "1.1rem",
-        mb: 0.5,
-    },
-    company: {
-        color: CORE_NAVY_COLOR,
-        fontWeight: "bold",
-        textDecoration: "none",
-        "&:hover": {
-            textDecoration: "underline",
-        },
-    },
-    quote: (isDarkMode) => ({
-        fontStyle: "italic",
-        color: isDarkMode ? 'rgba(255, 255, 255, 0.7)' : 'text.secondary', // Theme-dependent quote color
-        mt: 2,
-        fontSize: "0.95rem",
-        lineHeight: 1.6,
-    }),
-    carouselContainer: {
-        overflow: "hidden",
-        width: "100%",
-    },
-};
-
-// 1. Define the AnimatedCarouselInner styled component
-const totalItems = successStories.length;
-const scrollSpeed = totalItems * 5;
-
-const AnimatedCarouselInner = styled(Box)({
-    display: "flex",
-    // The actual width is dynamically calculated by the fixed min/max-width of the cards * 2 * number of cards
-    width: "max-content",
-
-    // Define the keyframes here for continuous left scroll
-    "@keyframes scrollLeft": {
-        "0%": { transform: "translateX(0)" },
-        "100%": { transform: "translateX(-50%)" },
-    },
-
-    // Apply the animation
-    animation: `scrollLeft ${scrollSpeed}s linear infinite`,
-
-    // Pause animation on hover
-    "&:hover": {
-        animationPlayState: "paused",
-    },
-});
-
-// --- FOOTER DATA & STYLES ---
-
-const FooterStyles = {
-    mainFooter: {
-        bgcolor: CORE_NAVY_COLOR,
-        color: "#fff",
-        py: 6,
-    },
-    heading: {
-        fontWeight: "bold",
-        fontSize: "1.1rem",
-        mb: 2,
-        color: "rgba(255, 255, 255, 0.9)",
-    },
-    link: {
-        display: "block",
-        textDecoration: "none",
-        color: "rgba(255, 255, 255, 0.7)",
-        mb: 1,
-        fontSize: "0.9rem",
-        transition: "color 0.2s",
-        "&:hover": {
-            color: "#fff",
-        },
-    },
-    linkWithIcon: {
-        display: "flex",
-        alignItems: "flex-start",
-        textDecoration: "none",
-        color: "rgba(255, 255, 255, 0.7)",
-        mb: 1.5,
-        fontSize: "0.9rem",
-        transition: "color 0.2s",
-        "&:hover": {
-            color: "#fff",
-        },
-        "& i": {
-            mr: 1,
-            mt: "3px",
-            fontSize: "0.8rem",
-        }
-    },
-    copyrightBar: {
-        borderTop: "1px solid rgba(255, 255, 255, 0.1)",
-        pt: 2,
-        mt: 4,
-        fontSize: "0.85rem",
-        color: "rgba(255, 255, 255, 0.7)",
-    },
-    govLogo: {
-        width: 30,
-        height: 30,
-        mr: 1,
-        filter: "invert(100%)",
-    }
-};
-
-const quickLinks = [
-    { label: "Guidelines & Instructions", icon: "fa-solid fa-file-alt", href: "#" },
-    { label: "Eligibility Criteria", icon: "fa-solid fa-graduation-cap", href: "#" },
-    { label: "Application Process", icon: "fa-solid fa-list-check", href: "#" },
-    { label: "Frequently Asked Questions", icon: "fa-solid fa-circle-question", href: "#" },
-];
-
-const governmentLinks = [
-    { label: "India.gov.in", href: "https://www.india.gov.in" },
-    { label: "Ministry of Corporate Affairs", href: "https://www.mca.gov.in" },
-    { label: "Digital India", href: "https://digitalindia.gov.in" },
-    { label: "MyGov.in", href: "https://www.mygov.in" },
-];
-
-// --- END FOOTER DATA & STYLES ---
-
 
 export default function HomePage() {
     const navigate = useNavigate();
-    // --- NEW STATE FOR DARK MODE ---
     const [isDarkMode, setIsDarkMode] = useState(false);
-   const [isLoggedIn, setIsLoggedIn] = useState(false);
-    // --- NEW STATE FOR MOBILE MENU ---
-    const [anchorEl, setAnchorEl] = useState(null);
-    const open = Boolean(anchorEl);
 
-    // --- NEW FUNCTION TO HANDLE DARK MODE TOGGLE ---
-    const handleChangeMode = () => {
-        setIsDarkMode((prev) => !prev);
-    };
-    // -----------------------------------------------
-
-    const handleClick = (event) => {
-        setAnchorEl(event.currentTarget);
-    };
-    const handleClose = () => {
-        setAnchorEl(null);
-    };
-    const handleNavClick = (path) => {
-        navigate(path);
-        handleClose();
-    };
-    // ---------------------------------
-
-    // Prevent back nav after logout
     useEffect(() => {
-        window.history.pushState(null, null, window.location.href);
-        window.onpopstate = function () {
-            window.history.go(1);
-        };
+        // Check local storage or system preference
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+            setIsDarkMode(true);
+        } else {
+            document.documentElement.classList.remove('dark');
+            setIsDarkMode(false);
+        }
     }, []);
 
-    // Navigation Items for both desktop and mobile menu
-    const navItems = [
-        { label: "Register", path: "/signup" },
-        { label: "Login", path: "/login" },
-        { label: " Select Language", path: "/login" },
-    ]
-
-    // Determine AppBar colors based on mode
-    const appBarBg = isDarkMode ? DARK_PAPER_BG : LIGHT_PAPER_BG;
-    const appBarColor = isDarkMode ? DARK_TEXT : LIGHT_TEXT;
-    const mainBg = isDarkMode ? DARK_BG : LIGHT_BG;
-
-    // Estimate AppBar height for fixed positioning below it.
-    // The Toolbar has py: 1 (8px padding top/bottom) and the image is 60px height.
-    const appBarHeight = 60 + 8 * 2; // ~76px to 80px depending on default font size. Use 80px as safe estimate.
+    const toggleDarkMode = () => {
+        if (isDarkMode) {
+            document.documentElement.classList.remove('dark');
+            localStorage.theme = 'light';
+            setIsDarkMode(false);
+        } else {
+            document.documentElement.classList.add('dark');
+            localStorage.theme = 'dark';
+            setIsDarkMode(true);
+        }
+    };
 
     return (
-        // Use mainBg for the overall page background
-        <Box sx={{ minHeight: "100vh", bgcolor: mainBg, color: appBarColor }}>
-
-            {/* --- START FLOATING DARK MODE TOGGLE --- */}
-            {/* Placed outside the AppBar, fixed position, 10px below the calculated AppBar height */}
-            <IconButton
-                aria-label="toggle light/dark mode"
-                onClick={handleChangeMode}
-                sx={{
-                    position: 'fixed',
-                    // Use a safe estimate for the vertical position
-                    top: `${appBarHeight + 20}px`,
-                    right: { xs: 16, md: 32 }, // Adjusted for responsiveness
-                    zIndex: 1100, // Above content, below AppBar (1200)
-                    bgcolor: isDarkMode ? "#fff" : LIGHT_PAPER_BG,
-                    color: isDarkMode ? "hsla(216, 90%, 20%, 1.00)"  : CORE_NAVY_COLOR,
-                    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
-                    transition: 'all 0.3s ease',
-                    '&:hover': {
-                        bgcolor: "hsla(216, 90%, 20%, 1.00)",
-                        color: DARK_TEXT,
-                        transform: 'scale(1.05)',
-                    },
-                    p: 1.5, // Standard padding for a prominent button
-                    borderRadius: '50%',
-                    display: { xs: 'block', md: 'block' } // Always visible
-                }}
-            >
-                {/* The icon changes based on the current mode */}
-                {isDarkMode ? <LightModeIcon fontSize="large" /> : <DarkModeIcon fontSize="large" />}
-            </IconButton>
-            {/* --- END FLOATING DARK MODE TOGGLE --- */}
-
-            {/* Navbar */}
-            <AppBar
-                position="sticky"
-                sx={{
-                    backgroundColor: appBarBg,
-                    color: appBarColor,
-                    px: 4,
-                    py: 1,
-                    boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
-                    zIndex: 1200, // Ensure AppBar is on top
-                }}
-            >
-                <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
-                    {/* Left: Logo + Title (Always visible) */}
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                        {/* Make the Logo/Title clickable for Home navigation */}
-                        <Box sx={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }} onClick={() => navigate("/")}>
-                            <img
-                                src={AshokChakra}
-                                alt="Ashok Chakra"
-                                style={{ width: 200, height: 60 }}
-                            />
-                            <Box sx={{ display: { xs: 'none', sm: 'block' } }}> {/* Hide title details on very small screens */}
-                                <Typography variant="h6" fontWeight="bold" color={appBarColor}>
-                                    PM Internship Scheme
-                                </Typography>
-                                <Typography variant="body2" color={appBarColor}>
-                                    Ministry of Corporate Affairs, Government of India
-                                </Typography>
-                            </Box>
-                        </Box>
-                    </Box>
-
-                    {/* Right: Buttons/Menu */}
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-
-                        {/* Desktop Navigation (Hidden on xs) */}
-                        {/* The logic for the Switch inside the toolbar is removed here */}
-                        <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 2 }}>
-                            {navItems.map((item) => (
-                                <Button
-                                    key={item.label}
-                                    variant="outlined"
-                                    sx={{
-                                        ...NavyButtonStyles,
-                                        color: "#fff",
-                                        borderColor: isDarkMode ? DARK_TEXT : CORE_NAVY_COLOR,
-                                    }}
-                                    onClick={() => navigate(item.path)}
-                                >
-                                    {item.label}
-                                </Button>
-                            ))}
-                        </Box>
-
-                        {/* Mobile Hamburger Menu Button (Visible on xs, hidden on md and up) */}
-                        <IconButton
-                            aria-label="menu"
-                            aria-controls={open ? 'basic-menu' : undefined}
-                            aria-haspopup="true"
-                            aria-expanded={open ? 'true' : undefined}
-                            onClick={handleClick}
-                            sx={{ display: { xs: 'block', md: 'none' }, color: CORE_NAVY_COLOR }}
+        <div className="bg-background-light dark:bg-background-dark font-display text-[#130d1c] dark:text-white transition-colors duration-300 min-h-screen">
+            <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-full max-w-[960px] px-4">
+                <header className="glass rounded-full px-6 py-3 flex items-center justify-between shadow-xl">
+                    <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/')}>
+                        <div className="size-8 text-primary">
+                            <svg fill="currentColor" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M24 18.4228L42 11.475V34.3663C42 34.7796 41.7457 35.1504 41.3601 35.2992L24 42V18.4228Z"></path>
+                                <path d="M24 8.18819L33.4123 11.574L24 15.2071L14.5877 11.574L24 8.18819ZM9 15.8487L21 20.4805V37.6263L9 32.9945V15.8487ZM27 37.6263V20.4805L39 15.8487V32.9945L27 37.6263ZM25.354 2.29885C24.4788 1.98402 23.5212 1.98402 22.646 2.29885L4.98454 8.65208C3.7939 9.08038 3 10.2097 3 11.475V34.3663C3 36.0196 4.01719 37.5026 5.55962 38.098L22.9197 44.7987C23.6149 45.0671 24.3851 45.0671 25.0803 44.7987L42.4404 38.098C43.9828 37.5026 45 36.0196 45 34.3663V11.475C45 10.2097 44.2061 9.08038 43.0155 8.65208L25.354 2.29885Z"></path>
+                            </svg>
+                        </div>
+                        <h2 className="text-lg font-bold tracking-tight">InternFinder</h2>
+                    </div>
+                    <nav className="hidden md:flex items-center gap-8">
+                        <a className="text-sm font-semibold hover:text-primary transition-colors relative after:content-[''] after:absolute after:-bottom-1 after:left-0 after:w-full after:h-0.5 after:bg-primary" href="#" onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>Home</a>
+                        <a className="text-sm font-medium hover:text-primary transition-colors" href="#eligibility" onClick={(e) => { e.preventDefault(); document.getElementById('eligibility')?.scrollIntoView({ behavior: 'smooth' }); }}>Eligibility</a>
+                        <a className="text-sm font-medium hover:text-primary transition-colors" href="#benefits" onClick={(e) => { e.preventDefault(); document.getElementById('benefits')?.scrollIntoView({ behavior: 'smooth' }); }}>Benefits</a>
+                        <a className="text-sm font-medium hover:text-primary transition-colors" href="#partners" onClick={(e) => { e.preventDefault(); document.getElementById('partners')?.scrollIntoView({ behavior: 'smooth' }); }}>Partners</a>
+                    </nav>
+                    <div className="flex items-center gap-3">
+                        <button className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors" onClick={toggleDarkMode}>
+                            <span className="material-symbols-outlined text-[20px]">{isDarkMode ? 'light_mode' : 'dark_mode'}</span>
+                        </button>
+                        <button
+                            className="bg-primary text-white text-sm font-bold px-5 py-2 rounded-full hover:opacity-90 transition-opacity"
+                            onClick={() => navigate('/login')}
                         >
-                            <MenuIcon />
-                        </IconButton>
-                    </Box>
-                </Toolbar>
-            </AppBar>
-
-            {/* Mobile Menu Dropdown */}
-            <Menu
-                id="basic-menu"
-                anchorEl={anchorEl}
-                open={open}
-                onClose={handleClose}
-                MenuListProps={{ 'aria-labelledby': 'basic-button' }}
-            >
-                {/* Also removed the in-navbar Switch from here */}
-                {navItems.map((item) => (
-                    <MenuItem key={item.label} onClick={() => handleNavClick(item.path)}>
-                        {item.label}
-                    </MenuItem>
-                ))}
-            </Menu>
-
-            {/* Hero Section ... (content remains the same) */}
-            <Box
-                sx={{
-                    bgcolor: CORE_NAVY_COLOR,
-                    color: "#fff",
-                    py: 6,
-                    position: "relative",
-                }}
-            >
-                <Container>
-                    {/* ... Hero Content ... */}
-                    <Box
-                        sx={{
-                            display: "flex",
-                            flexDirection: { xs: "column", md: "row" },
-                            justifyContent: "space-between",
-                            alignItems: "flex-start",
-                        }}
-                    >
-                        {/* Left Column: Text and CTA Buttons */}
-                        <Box
-                            sx={{
-                                maxWidth: { xs: "100%", md: "50%" },
-                                mb: { xs: 4, md: 0 },
-                                pr: { md: 4 },
-                                textAlign: { xs: 'center', md: 'left' }
-                            }}
-                        >
-                            <Typography variant="h3" fontWeight="bold" gutterBottom>
-                                Bridge the Gap Between Learning and Industry
-                            </Typography>
-                            <Typography variant="body1" sx={{ mb: 4 }}>
-                                Join India&apos;s flagship internship program and gain hands-on
-                                experience with the country&apos;s leading companies. Get paid
-                                while you learn and build your career foundation.
-                            </Typography>
-
-                            {/* CTA Buttons - Responsive stack/row */}
-                            <Box
-                                sx={{
-                                    display: "flex",
-                                    gap: 2,
-                                    justifyContent: { xs: 'center', md: 'flex-start' },
-                                    flexDirection: { xs: 'column', sm: 'row' }
-                                }}
-                            >
-                                <Button
-                                    variant="contained"
-                                    sx={{ ...dashboardBtn }}
-                                    onClick={() => navigate("/signup")}
-                                    endIcon={
-                                        <Box component="span" sx={{ fontSize: "1.2rem" }}>
-                                            &rarr;
-                                        </Box>
-                                    }
-                                >
-                                    Register Now
-                                </Button>
-                                {/* <Button
-                                    variant="outlined"
-                                    sx={{ ...dashboardBtn }}
-                                >
-                                    Browse Internships
-                                </Button> */}
-                            </Box>
-                        </Box>
-
-                        {/* Right Column: Stats Section */}
-                        <Box
-                            sx={{
-                                width: { xs: "100%", md: "initial" },
-                            }}
-                        >
-                            <Grid container spacing={2} sx={{ width: "100%" }}>
-                                {" "}
-                                {/* Adjusted spacing for tighter grid */}
-                                {[
-                                    {
-                                        label: "Registered Candidates",
-                                        value: "1,25,000",
-                                        icon: <i className="fa-solid fa-user-group" />,
-                                    },
-                                    {
-                                        label: "Partner Companies",
-                                        value: "2,500",
-                                        icon: <i className="fa-solid fa-building" />,
-                                    },
-                                    {
-                                        label: "Active Internships",
-                                        value: "15,000",
-                                        icon: <i className="fa-solid fa-briefcase" />,
-                                    },
-                                    {
-                                        label: "Placement Success",
-                                        value: "87%",
-                                        icon: <i className="fa-solid fa-chart-line" />,
-                                    },
-                                ].map((stat, i) => (
-                                    // Stats remain 2 per row (xs={6})
-                                    <Grid item xs={6} key={i}>
-                                        <Paper
-                                            elevation={0}
-                                            sx={{
-                                                padding: "1.5rem",
-                                                textAlign: "left",
-                                                borderRadius: "0.75rem",
-                                                backgroundColor: "rgba(255, 255, 255, 0.1)",
-                                                minHeight: "120px",
-                                                display: "flex",
-                                                flexDirection: "column",
-                                                justifyContent: "center",
-                                                color: "#fff",
-                                                border: "1px solid rgba(255, 255, 255, 0.2)",
-                                                boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-                                                transition:
-                                                    "background-color 0.3s ease, border-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease",
-                                                "&:hover": {
-                                                    backgroundColor: "rgba(255, 255, 255, 0.2)",
-                                                    borderColor: "rgba(255, 255, 255, 0.5)",
-                                                    transform: "scale(1.03)",
-                                                    boxShadow: "0 10px 15px rgba(0, 0, 0, 0.3)",
-                                                },
-                                            }}
-                                        >
-                                            {/* Icon placeholder (replace with actual icons) */}
-                                            <Box sx={{ mb: 1.5, fontSize: 30, opacity: 0.8 }}>
-                                                {stat.icon}
-                                            </Box>
-                                            <Typography variant="h5" fontWeight="bold" gutterBottom>
-                                                {stat.value}
-                                            </Typography>
-                                            <Typography
-                                                variant="body2"
-                                                color="#fff"
-                                                sx={{ opacity: 0.8 }}
-                                            >
-                                                {stat.label}
-                                            </Typography>
-                                        </Paper>
-                                    </Grid>
-                                ))}
-                            </Grid>
-                        </Box>
-                    </Box>
-                </Container>
-            </Box>
-            {/* END Hero Section */}
-
-            {/* --- START Eligibility & Benefits Section (New Content) --- */}
-            <Container sx={EligibilityCardStyles.eligibilitySection(isDarkMode)}>
-                <Grid container spacing={4}>
-                    {/* Left Side: Eligibility */}
-                    <Grid item xs={12} md={6}>
-                        <Typography variant="h5" fontWeight="bold" textAlign="center" sx={{ mb: 4, color: appBarColor }}>
-                            Are you <Box component="span" color={CORE_NAVY_COLOR}>Eligible?</Box>
-                        </Typography>
-                        <Grid container spacing={3}>
-                            {eligibilityData.map((item, index) => (
-                                <Grid item xs={12} sm={6} key={index}>
-                                    <Paper sx={EligibilityCardStyles.card(isDarkMode)} elevation={1}>
-                                        <Box sx={EligibilityCardStyles.iconBox()}>
-                                            {/* Special rendering for Age to match image */}
-                                            {item.note}
-                                        </Box>
-                                        <Typography sx={EligibilityCardStyles.title}>
-                                            {item.title}
-                                        </Typography>
-                                        <Typography sx={EligibilityCardStyles.value(isDarkMode)}>
-                                            {item.value}
-                                        </Typography>
-                                    </Paper>
-                                </Grid>
-                            ))}
-                        </Grid>
-                    </Grid>
-
-                    {/* Right Side: Core Benefits */}
-                    <Grid item xs={12} md={6}>
-                        <Typography variant="h5" fontWeight="bold" textAlign="center" sx={{ mb: 4, color: appBarColor }}>
-                            Core Benefits for <Box component="span" color={CORE_NAVY_COLOR}>PM Internship Scheme</Box>
-                        </Typography>
-                        <Grid container spacing={3}>
-                            {benefitsData.map((item, index) => (
-                                <Grid item xs={12} sm={6} key={index}>
-                                    <Paper sx={EligibilityCardStyles.card(isDarkMode)} elevation={1}>
-                                        <Box sx={EligibilityCardStyles.benefitIconBox}>
-                                            {item.note}
-                                        </Box>
-                                        <Typography sx={EligibilityCardStyles.title}>
-                                            {item.title}
-                                        </Typography>
-                                        <Typography sx={EligibilityCardStyles.value(isDarkMode)} fontWeight="normal">
-                                            {item.value}
-                                        </Typography>
-                                    </Paper>
-                                </Grid>
-                            ))}
-                        </Grid>
-                    </Grid>
-                </Grid>
-            </Container>
-            {/* --- END Eligibility & Benefits Section --- */}
-
-            {/* --- START Success Stories Section (Auto-Scrolling) --- */}
-            {/* Container needs overflowX: 'hidden' to hide the massive scrolling component */}
-            <Box sx={{ py: 8, overflowX: 'hidden', bgcolor: mainBg, color: appBarColor }}>
-                <Container>
-                    <Typography
-                        variant="h4"
-                        fontWeight="bold"
-                        textAlign="center"
-                        gutterBottom
-                    >
-                        Success Stories
-                    </Typography>
-                    <Typography
-                        variant="subtitle1"
-                        textAlign="center"
-                        color={isDarkMode ? 'rgba(255, 255, 255, 0.7)' : 'text.secondary'}
-                        sx={{ mb: 6 }}
-                    >
-                        Hear from our successful interns who transformed their careers
-                    </Typography>
-                </Container>
-
-                {/* Outer Box to wrap the scrolling content, allowing it to overflow the centered Container */}
-                <Box sx={SuccessStoryStyles.carouselContainer}>
-                    <AnimatedCarouselInner sx={{
-                        // --- RESPONSIVE FIX 3: Center the visible cards on mobile ---
-                        justifyContent: { xs: 'flex-start', md: 'flex-start' },
-                    }}>
-                        {[...successStories, ...successStories].map((story, index) => (
-                            <Paper sx={SuccessStoryStyles.card(isDarkMode)} key={index} elevation={1}>
-
-                                {/* Avatar */}
-                                <Box sx={EligibilityCardStyles.iconBox()}>
-                                            {/* Special rendering for Age to match image */}
-                                            {story.note}
-                                        </Box>
-
-                                {/* Name and Title */}
-                                <Typography variant="h6" sx={SuccessStoryStyles.name} color={isDarkMode ? DARK_TEXT : LIGHT_TEXT}>
-                                    {story.name}
-                                </Typography>
-                                <Typography variant="body2" color="text.secondary">
-                                    {story.title}
-                                </Typography>
-
-                                {/* Company (link) */}
-                                <Typography
-                                    variant="body2"
-                                    component="a"
-                                    href="#"
-                                    sx={SuccessStoryStyles.company}
-                                >
-                                    {story.company}
-                                </Typography>
-
-                                {/* Quote */}
-                                <Typography variant="body2" sx={SuccessStoryStyles.quote(isDarkMode)}>
-                                    {story.quote}
-                                </Typography>
-                            </Paper>
-                        ))}
-                    </AnimatedCarouselInner>
-                </Box>
-            </Box>
-            {/* --- END Success Stories Section --- */}
-
-            {/* --- START FOOTER SECTION --- */}
-            {/* Footer already uses CORE_NAVY_COLOR, so no changes needed here for Dark Mode */}
-            <Box component="footer" sx={FooterStyles.mainFooter}>
-                <Container>
-                    <Grid container spacing={4}>
-
-                        {/* Column 1: PM Internship Scheme */}
-                        <Grid item xs={12} sm={6} md={3}>
-                            <Typography sx={FooterStyles.heading}>
-                                PM Internship Scheme
-                            </Typography>
-                            <Typography variant="body2" color="rgba(255, 255, 255, 0.7)" sx={{ mb: 2 }}>
-                                Bridging the gap between academic learning and industry requirements through quality internship opportunities in India's leading companies.
-                            </Typography>
-                            <Box sx={{ display: 'flex', alignItems: 'center', mt: 2 }}>
-                                <img
-                                    src={AshokChakra}
-                                    alt="Ashok Stambh"
-                                    style={FooterStyles.govLogo}
-                                />
-                                <Typography variant="body2" color="rgba(255, 255, 255, 0.7)">
-                                    Ministry of Corporate Affairs
-                                </Typography>
-                            </Box>
-                        </Grid>
-
-                        {/* Column 2: Quick Links - Stacked on XS, side-by-side on SM+ */}
-                        <Grid item xs={6} sm={6} md={3}>
-                            <Typography sx={FooterStyles.heading}>
-                                Quick Links
-                            </Typography>
-                            {quickLinks.map((link, index) => (
-                                <Box
-                                    component="a"
-                                    href={link.href}
-                                    key={index}
-                                    sx={FooterStyles.linkWithIcon}
-                                >
-                                    <i className={link.icon} />
-                                    {link.label}
-                                </Box>
-                            ))}
-                        </Grid>
-
-                        {/* Column 3: Support - Stacked on XS, side-by-side on SM+ */}
-                        <Grid item xs={6} sm={6} md={3}>
-                            <Typography sx={FooterStyles.heading}>
-                                Support
-                            </Typography>
-                            <Box sx={FooterStyles.linkWithIcon}><i className="fa-solid fa-envelope" /> support@pminternship.mca.gov.in</Box>
-                            <Box sx={FooterStyles.linkWithIcon}><i className="fa-solid fa-phone" /> 1800-123-456 (Toll Free)</Box>
-                            <Box sx={FooterStyles.linkWithIcon}><i className="fa-solid fa-location-dot" />
-                                <Box>
-                                    Ministry of Corporate Affairs<br />
-                                    Shastri Bhawan, New Delhi - 110001
-                                </Box>
-                            </Box>
-                        </Grid>
-
-                        {/* Column 4: Government Links */}
-                        <Grid item xs={12} sm={6} md={3}>
-                            <Typography sx={FooterStyles.heading}>
-                                Government Links
-                            </Typography>
-                            {governmentLinks.map((link, index) => (
-                                <Box
-                                    component="a"
-                                    href={link.href}
-                                    key={index}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    sx={FooterStyles.link}
-                                >
-                                    {link.label}
-                                </Box>
-                            ))}
-                        </Grid>
-                    </Grid>
-
-                    {/* Copyright Bar */}
-                    <Box sx={FooterStyles.copyrightBar}>
-                        <Grid container justifyContent="space-between" alignItems="center">
-                            <Grid item xs={12} md={6} sx={{ order: { xs: 2, md: 1 } }}>
-                                <Typography variant="body2" component="span">
-                                    © 2024 Government of India. All rights reserved.
-                                </Typography>
-                            </Grid>
-                            <Grid item xs={12} md={6} sx={{
-                                display: 'flex',
-                                gap: 3,
-                                order: { xs: 1, md: 2 },
-                                mb: { xs: 2, md: 0 },
-                                justifyContent: { xs: 'flex-start', md: 'flex-end' }
-                            }}>
-                                <Box component="a" href="#" sx={FooterStyles.link} style={{ display: 'inline' }}>Privacy Policy</Box>
-                                <Box component="a" href="#" sx={FooterStyles.link} style={{ display: 'inline' }}>Terms of Use</Box>
-                                <Box component="a" href="#" sx={FooterStyles.link} style={{ display: 'inline' }}>Accessibility</Box>
-                                <Box component="a" href="#" sx={FooterStyles.link} style={{ display: 'inline' }}>Sitemap</Box>
-                            </Grid>
-                        </Grid>
-                    </Box>
-                </Container>
-            </Box>
-        </Box>
+                            Login
+                        </button>
+                    </div>
+                </header>
+            </div>
+            <main className="pt-24 pb-8 px-4 md:px-0">
+                <div className="max-w-[1100px] mx-auto">
+                    <section className="relative mb-20">
+                        <div className="rounded-3xl overflow-hidden relative min-h-[560px] flex items-center justify-center p-8 bg-gradient-to-br from-[#130d1c] via-[#4d21b3] to-[#833cf6]" data-alt="Dynamic deep indigo and violet gradient pattern with geometric shapes">
+                            <div className="absolute inset-0 opacity-20 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '40px 40px' }}></div>
+                            <div className="relative z-10 text-center max-w-3xl">
+                                <h1 className="text-white text-5xl md:text-7xl font-black leading-tight tracking-tighter mb-6">
+                                    Bridge the Gap Between <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-200 to-pink-200">Learning and Industry</span>
+                                </h1>
+                                <p className="text-white/80 text-lg md:text-xl font-normal leading-relaxed mb-10 max-w-2xl mx-auto">
+                                    Experience the future of professional growth with ultra-modern placement solutions designed for the next generation of leaders.
+                                </p>
+                                <div className="flex flex-wrap gap-4 justify-center">
+                                    <button
+                                        className="bg-white text-primary text-base font-bold h-14 px-8 rounded-xl shadow-lg hover:bg-opacity-90 transition-all"
+                                        onClick={() => navigate('/signup')}
+                                    >
+                                        Get Started
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                    <section id="partners" className="mb-20">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div className="glass glow-card rounded-2xl p-8 flex flex-col gap-3">
+                                <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center text-primary mb-2">
+                                    <span className="material-symbols-outlined text-3xl">groups</span>
+                                </div>
+                                <p className="text-sm font-semibold opacity-60 uppercase tracking-widest">Total Candidates</p>
+                                <p className="text-3xl md:text-4xl font-black">1,25,000+</p>
+                                <p className="text-[#078845] text-sm font-bold flex items-center gap-1">
+                                    <span className="material-symbols-outlined text-sm">trending_up</span> +15% this month
+                                </p>
+                            </div>
+                            <div className="glass glow-card rounded-2xl p-8 flex flex-col gap-3">
+                                <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center text-primary mb-2">
+                                    <span className="material-symbols-outlined text-3xl">business</span>
+                                </div>
+                                <p className="text-sm font-semibold opacity-60 uppercase tracking-widest">Partner Firms</p>
+                                <p className="text-3xl md:text-4xl font-black">500+</p>
+                                <p className="text-[#078845] text-sm font-bold flex items-center gap-1">
+                                    <span className="material-symbols-outlined text-sm">trending_up</span> +8% increase
+                                </p>
+                            </div>
+                            <div className="glass glow-card rounded-2xl p-8 flex flex-col gap-3">
+                                <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center text-primary mb-2">
+                                    <span className="material-symbols-outlined text-3xl">work</span>
+                                </div>
+                                <p className="text-sm font-semibold opacity-60 uppercase tracking-widest">Active Internships</p>
+                                <p className="text-3xl md:text-4xl font-black">45,000+</p>
+                                <p className="text-[#078845] text-sm font-bold flex items-center gap-1">
+                                    <span className="material-symbols-outlined text-sm">trending_up</span> +12% growth
+                                </p>
+                            </div>
+                        </div>
+                    </section>
+                    <section id="eligibility" className="mb-20">
+                        <h2 className="text-3xl md:text-4xl font-black mb-10 text-center">Are you Eligible?</h2>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <div className="p-6 rounded-2xl bg-white dark:bg-white/5 border border-[#d8cee8] dark:border-white/10 hover:border-primary transition-all group">
+                                <span className="material-symbols-outlined text-primary mb-4 block text-3xl transition-transform group-hover:scale-110">person</span>
+                                <h3 className="font-bold text-lg mb-2">Age Criteria</h3>
+                                <p className="text-sm opacity-70">Aged 18-25 years at the time of application.</p>
+                            </div>
+                            <div className="p-6 rounded-2xl bg-white dark:bg-white/5 border border-[#d8cee8] dark:border-white/10 hover:border-primary transition-all group">
+                                <span className="material-symbols-outlined text-primary mb-4 block text-3xl transition-transform group-hover:scale-110">school</span>
+                                <h3 className="font-bold text-lg mb-2">Academic Status</h3>
+                                <p className="text-sm opacity-70">Final year students or recent graduates from recognized institutions.</p>
+                            </div>
+                            <div className="p-6 rounded-2xl bg-white dark:bg-white/5 border border-[#d8cee8] dark:border-white/10 hover:border-primary transition-all group">
+                                <span className="material-symbols-outlined text-primary mb-4 block text-3xl transition-transform group-hover:scale-110">public</span>
+                                <h3 className="font-bold text-lg mb-2">Nationality</h3>
+                                <p className="text-sm opacity-70">Must be an Indian Citizen with valid identification.</p>
+                            </div>
+                            <div className="p-6 rounded-2xl bg-white dark:bg-white/5 border border-[#d8cee8] dark:border-white/10 hover:border-primary transition-all group">
+                                <span className="material-symbols-outlined text-primary mb-4 block text-3xl transition-transform group-hover:scale-110">bolt</span>
+                                <h3 className="font-bold text-lg mb-2">Skill Proficiency</h3>
+                                <p className="text-sm opacity-70">Demonstrable basic domain knowledge and willingness to learn.</p>
+                            </div>
+                        </div>
+                    </section>
+                    <section id="benefits" className="mb-20">
+                        <h2 className="text-3xl md:text-4xl font-black mb-10 text-center">Core Benefits</h2>
+                        <div className="grid grid-cols-1 md:grid-cols-4 grid-rows-2 gap-4 h-auto md:h-[600px]">
+                            <div className="md:col-span-2 md:row-span-2 bento-item bg-primary text-white rounded-3xl p-8 flex flex-col justify-end relative overflow-hidden">
+                                <div className="absolute top-8 right-8 text-white/20">
+                                    <span className="material-symbols-outlined text-[120px]">rocket_launch</span>
+                                </div>
+                                <h3 className="text-3xl font-black mb-4">Fast-Track Career Growth</h3>
+                                <p className="text-white/80 max-w-md">Get direct exposure to industry-leading projects and mentorship from top-tier professionals in your field.</p>
+                                <button className="mt-8 bg-white text-primary font-bold px-6 py-3 rounded-xl self-start">Learn More</button>
+                            </div>
+                            <div className="md:col-span-2 md:row-span-1 bento-item glass rounded-3xl p-8 flex items-center gap-6">
+                                <div className="w-16 h-16 shrink-0 rounded-2xl bg-gradient-to-tr from-orange-400 to-red-500 flex items-center justify-center text-white">
+                                    <span className="material-symbols-outlined text-3xl">currency_rupee</span>
+                                </div>
+                                <div>
+                                    <h3 className="text-xl font-bold mb-1">Monthly Stipend</h3>
+                                    <p className="text-sm opacity-70">Generous monthly allowance to support your professional journey.</p>
+                                </div>
+                            </div>
+                            <div className="md:col-span-1 md:row-span-1 bento-item glass rounded-3xl p-8 flex flex-col justify-center text-center">
+                                <span className="material-symbols-outlined text-4xl text-primary mb-3">verified</span>
+                                <h3 className="font-bold">Certification</h3>
+                                <p className="text-xs opacity-70 mt-2">Government recognized experience certificate.</p>
+                            </div>
+                            <div className="md:col-span-1 md:row-span-1 bento-item bg-white dark:bg-white/5 border border-primary/20 rounded-3xl p-8 flex flex-col justify-center text-center">
+                                <span className="material-symbols-outlined text-4xl text-primary mb-3">handshake</span>
+                                <h3 className="font-bold">Networking</h3>
+                                <p className="text-xs opacity-70 mt-2">Connect with 500+ partner firms.</p>
+                            </div>
+                        </div>
+                    </section>
+                    <section className="mb-20">
+                        <h2 className="text-3xl md:text-4xl font-black mb-10 text-center">What Interns Say</h2>
+                        <div className="flex flex-col md:flex-row gap-6">
+                            <div className="flex-1 glass p-8 rounded-3xl relative">
+                                <div className="absolute -top-4 -left-4 w-12 h-12 bg-primary rounded-full flex items-center justify-center text-white text-2xl font-serif italic">"</div>
+                                <p className="text-lg italic mb-6 opacity-80">"The InternFinder Scheme transformed my career. The hands-on experience at a top tech firm was exactly what I needed after college."</p>
+                                <div className="flex items-center gap-4">
+                                    <div className="w-12 h-12 rounded-full border-2 border-primary p-0.5">
+                                        <img alt="Professional portrait of male intern" className="w-full h-full object-cover rounded-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAprOthUi8oQnZQLRB__l2gMwvzPtr5iSA6fNQILcNchhpQgblFeJYRaeFrXOQcsl1KccHdK7HqgnreSWH3SKi9XToKjhcbVL85MQ5PrM7WJaIGaEp7yDBF07eUJZFPufd-r-tRPUkAH3mdn481oo12q1vkiN4ODRWp0lY3QrQkJkNBTv1Najz3gN19sFyf4jSs3gBp8O89Lew9TBLg8GiKqeZBxaCHjDfcJjQH37B0_O3lop2AunBQiXsKbTQrKOx1ENlkiggbWk-q" />
+                                    </div>
+                                    <div>
+                                        <h4 className="font-bold">Arjun Mehta</h4>
+                                        <p className="text-xs opacity-60">Software Engineer Intern @ TechCorp</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="flex-1 glass p-8 rounded-3xl relative">
+                                <div className="absolute -top-4 -left-4 w-12 h-12 bg-primary rounded-full flex items-center justify-center text-white text-2xl font-serif italic">"</div>
+                                <p className="text-lg italic mb-6 opacity-80">"I learned more in 3 months of this internship than in 4 years of theory. The mentorship program is truly world-class."</p>
+                                <div className="flex items-center gap-4">
+                                    <div className="w-12 h-12 rounded-full border-2 border-primary p-0.5">
+                                        <img alt="Professional portrait of female intern" className="w-full h-full object-cover rounded-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCfoGUBXcvk41OVYrX0Du6jeCKpCidd3vgprfJVeZKwJJuAPZ9lLTqkVcS9dxlrS4nAdN1IIlXZF5TnnJH38b0nQBk_SXhRnBYlB7RBuqAPqPjMUWsxcCsEFBgjIZqqBo-PCGq1s5gbZSOotpIbMTUHM3cAqWz450p6ERnImeIEatsOG9Lew9TBLg8GiKqeZBxaCHjDfcJjQH37B0_O3lop2AunBQiXsKbTQrKOx1ENlkiggbWk-q" />
+                                    </div>
+                                    <div>
+                                        <h4 className="font-bold">Priya Sharma</h4>
+                                        <p className="text-xs opacity-60">Product Design Intern @ CreativeFlow</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </main>
+            <footer className="bg-white dark:bg-black/20 py-12 border-t border-black/5 dark:border-white/5">
+                <div className="max-w-[1100px] mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-8">
+                    <div className="flex items-center gap-3">
+                        <div className="size-6 text-primary">
+                            <svg fill="currentColor" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M24 18.4228L42 11.475V34.3663C42 34.7796 41.7457 35.1504 41.3601 35.2992L24 42V18.4228Z"></path>
+                            </svg>
+                        </div>
+                        <h2 className="text-base font-bold">InternFinder</h2>
+                    </div>
+                    <div className="flex gap-8 text-sm opacity-60">
+                        <a className="hover:text-primary transition-colors" href="#">Privacy Policy</a>
+                        <a className="hover:text-primary transition-colors" href="#">Terms of Service</a>
+                        <a className="hover:text-primary transition-colors" href="#">Contact Support</a>
+                    </div>
+                    <p className="text-xs opacity-40">© 2025 InternFinder. All rights reserved.</p>
+                </div>
+            </footer>
+        </div>
     );
 }

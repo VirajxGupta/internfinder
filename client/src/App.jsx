@@ -8,7 +8,7 @@ import DashBoard from "./pages/HomePage2.jsx";
 import Explore from "./pages/explore.jsx";
 import SavedInternships from "./pages/saved.jsx";
 import ApplyPage from "./pages/ApplyPage.jsx";
-import ProtectedRoute from "./components/ProtectedRoute.jsx";
+
 import "./index.css";
 import Chatbot from "./pages/chatbot.jsx";
 import HomePage from "./pages/HomePage.jsx"
@@ -22,57 +22,57 @@ function App() {
       <Toaster position="top-center" reverseOrder={false} />{" "}
       <Routes>
         {" "}
-        {/* Public Routes */} 
+        {/* Public Routes */}
         <Route path="/login" element={<LoginPage />} />{" "}
         <Route path="/signup" element={<Signup />} />{" "}
         <Route path="/" element={<HomePage />} />{" "}
         <Route
           path="/resume"
           element={
-              <ResumePage />
+            <ResumePage />
           }
         />
-        
-      
+
+
         {/* Protected Routes */}{" "}
         <Route
           path="/home"
           element={
-              <DashBoard />
-            
+            <DashBoard />
+
           }
         />{" "}
-        
+
         <Route
           path="/explore"
           element={
-              <Explore />
-            
+            <Explore />
+
           }
         />{" "}
         <Route
           path="/saved"
           element={
-              <SavedInternships />
+            <SavedInternships />
           }
         />{" "}
         <Route
           path="/apply"
           element={
-              <ApplyPage />
+            <ApplyPage />
           }
         />{" "}
         <Route
           path="/profile"
           element={
-              <ProfilePage />
+            <ProfilePage />
           }
         />{" "}
         <Route
           path="/about"
           element={
-              <About />
-            
+            <About />
+
           }
         />{" "}
         {/* ✅ Fallback route */}{" "}
@@ -87,8 +87,8 @@ function App() {
         />{" "}
       </Routes>{" "}
       {/* The Chatbot component is correctly placed here, outside the Routes, so it is visible across all pages that match a route. */}{" "}
-       < Chatbot/>
-        </Router>
+      < Chatbot />
+    </Router>
   );
 }
 export default App;

@@ -1,8 +1,72 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../firebase";
+import { toast } from "react-hot-toast";
+import { motion } from "framer-motion";
+
+// Footer Component (Internal definition)
+const Footer = () => (
+  <footer className="bg-[#0a45a3] text-white pt-8 pb-6 border-t border-white/10 mt-10">
+    <div className="max-w-[1200px] mx-auto px-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+        <div>
+          <h3 className="font-bold text-lg mb-4 flex items-center">
+            InternFinder
+          </h3>
+          <p className="text-white/60 text-sm leading-relaxed mb-4">
+            Bridging the gap between academic learning and industry requirements through quality internship opportunities in India's leading companies.
+          </p>
+          <p className="text-white/60 text-xs">Ministry of Corporate Affairs</p>
+        </div>
+        <div>
+          <h3 className="font-bold text-lg mb-4">Quick Links</h3>
+          <ul className="space-y-2 text-sm text-white/60">
+            <li><a href="#" className="hover:text-white transition-colors">Guidelines & Instructions</a></li>
+            <li><a href="#" className="hover:text-white transition-colors">Eligibility Criteria</a></li>
+            <li><a href="#" className="hover:text-white transition-colors">Application Process</a></li>
+            <li><a href="#" className="hover:text-white transition-colors">Frequently Asked Questions</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3 className="font-bold text-lg mb-4">Support</h3>
+          <ul className="space-y-3 text-sm text-white/60">
+            <li className="flex items-start gap-2">
+              <span className="material-symbols-outlined text-sm mt-0.5">mail</span>
+              support@internfinder.gov.in
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="material-symbols-outlined text-sm mt-0.5">call</span>
+              1800-123-456 (Toll Free)
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="material-symbols-outlined text-sm mt-0.5">location_on</span>
+              Shastri Bhawan, New Delhi - 110001
+            </li>
+          </ul>
+        </div>
+        <div>
+          <h3 className="font-bold text-lg mb-4">Government Links</h3>
+          <ul className="space-y-2 text-sm text-white/60">
+            <li><a href="https://www.india.gov.in" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">India.gov.in</a></li>
+            <li><a href="https://www.mca.gov.in" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Ministry of Corporate Affairs</a></li>
+            <li><a href="https://digitalindia.gov.in" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Digital India</a></li>
+            <li><a href="https://www.mygov.in" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">MyGov.in</a></li>
+          </ul>
+        </div>
+      </div>
+      <div className="border-t border-white/10 pt-6 flex flex-col md:flex-row items-center justify-between text-xs text-white/40">
+        <p>© 2025 InternFinder. All rights reserved.</p>
+        <div className="flex gap-6 mt-4 md:mt-0">
+          <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
+          <a href="#" className="hover:text-white transition-colors">Terms of Service</a>
+          <a href="#" className="hover:text-white transition-colors">Accessibility</a>
+          <a href="#" className="hover:text-white transition-colors">Sitemap</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+);
 
 // Function to fetch internship details from Firebase
 async function getInternshipDetails(id) {
@@ -24,10 +88,10 @@ async function getInternshipDetails(id) {
 function ResumePage() {
   const navigate = useNavigate();
   const [selectedMethod, setSelectedMethod] = useState('');
-  const [showToast, setShowToast] = useState(false);
-  const [toastMessage, setToastMessage] = useState('');
   const [loading, setLoading] = useState(false);
-  
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [user, setUser] = useState({ name: "Intern", email: "" });
+
   // Dialog states
   const [openResultsDialog, setOpenResultsDialog] = useState(false);
   const [results, setResults] = useState([]);
@@ -37,10 +101,36 @@ function ResumePage() {
   const [openDetailDialog, setOpenDetailDialog] = useState(false);
   const [selectedInternship, setSelectedInternship] = useState(null);
 
+  useEffect(() => {
+    // Dark Mode Logic
+    if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      document.documentElement.classList.add('dark');
+      setIsDarkMode(true);
+    } else {
+      document.documentElement.classList.remove('dark');
+      setIsDarkMode(false);
+    }
+    // Load User
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+  }, []);
+
+  const toggleDarkMode = () => {
+    if (isDarkMode) {
+      document.documentElement.classList.remove('dark');
+      localStorage.theme = 'light';
+      setIsDarkMode(false);
+    } else {
+      document.documentElement.classList.add('dark');
+      localStorage.theme = 'dark';
+      setIsDarkMode(true);
+    }
+  };
+
   const showNotification = (message) => {
-    setToastMessage(message);
-    setShowToast(true);
-    setTimeout(() => setShowToast(false), 3000);
+    toast(message);
   };
 
   const handleCardClick = (method) => {
@@ -68,73 +158,71 @@ function ResumePage() {
   };
 
   const handleResumeUploadAndExtract = async () => {
-  const input = document.createElement('input');
-  input.type = 'file';
-  input.accept = '.pdf,.doc,.docx';
-  input.style.display = 'none';
-  
-  input.onchange = async (e) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      showNotification(`Processing: ${file.name}`);
-      setLoading(true);
-      
-      try {
-        const formData = new FormData();
-        formData.append('file', file);
-        
-        // Add additional parameters to FormData if backend expects them
-        formData.append('get_recommendations', 'true');
-        // formData.append('user_preferences', JSON.stringify({}));
-        
-        const response = await fetch('https://pipalskill-sih-ml-backend-resume-scanner.hf.space/resume-content-extractor', {
-          method: 'POST',
-          body: formData,
-        });
-        
-        if (!response.ok) {
-          const errorText = await response.text();
-          console.error('API Error:', response.status, errorText);
-          throw new Error(`API Error: ${response.status} ${response.statusText}`);
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.pdf,.doc,.docx';
+    input.style.display = 'none';
+
+    input.onchange = async (e) => {
+      if (e.target.files && e.target.files[0]) {
+        const file = e.target.files[0];
+        toast.loading(`Processing: ${file.name}`);
+        setLoading(true);
+
+        try {
+          const formData = new FormData();
+          formData.append('file', file);
+          formData.append('get_recommendations', 'true');
+
+          const response = await fetch('https://pipalskill-sih-ml-backend-resume-scanner.hf.space/resume-content-extractor', {
+            method: 'POST',
+            body: formData,
+          });
+
+          if (!response.ok) {
+            const errorText = await response.text();
+            console.error('API Error:', response.status, errorText);
+            throw new Error(`API Error: ${response.status} ${response.statusText}`);
+          }
+
+          const result = await response.json();
+          console.log('API Response:', result);
+
+          const recommendations = result.recommendations || result.data || [];
+
+          if (recommendations.length === 0) {
+            toast.dismiss();
+            toast.error('No recommendations found. Try manual entry.');
+            return;
+          }
+
+          const fullData = await Promise.all(
+            recommendations.map(async (rec) => {
+              const details = await getInternshipDetails(rec.internship_id);
+              return { ...details, score: rec.score };
+            })
+          );
+
+          setResults(fullData.filter((item) => item !== null));
+          setOpenResultsDialog(true);
+          setShowMore(false);
+          toast.dismiss();
+          toast.success('Recommendations loaded successfully!');
+
+        } catch (error) {
+          console.error('Error:', error);
+          toast.dismiss();
+          toast.error(`Error: ${error.message}`);
+        } finally {
+          setLoading(false);
         }
-        
-        const result = await response.json();
-        console.log('API Response:', result);
-        
-        // Extract recommendations from response
-        const recommendations = result.recommendations || result.data || [];
-        
-        if (recommendations.length === 0) {
-          showNotification('No recommendations found. Try manual entry.');
-          return;
-        }
-        
-        // Fetch full internship details from Firebase
-        const fullData = await Promise.all(
-          recommendations.map(async (rec) => {
-            const details = await getInternshipDetails(rec.internship_id);
-            return { ...details, score: rec.score };
-          })
-        );
-        
-        setResults(fullData.filter((item) => item !== null));
-        setOpenResultsDialog(true);
-        setShowMore(false);
-        showNotification('Recommendations loaded successfully!');
-        
-      } catch (error) {
-        console.error('Error:', error);
-        showNotification(`Error: ${error.message}`);
-      } finally {
-        setLoading(false);
       }
-    }
+    };
+
+    document.body.appendChild(input);
+    input.click();
+    document.body.removeChild(input);
   };
-  
-  document.body.appendChild(input);
-  input.click();
-  document.body.removeChild(input);
-};
 
   const handleButtonClick = () => {
     if (selectedMethod === 'manual') {
@@ -145,71 +233,68 @@ function ResumePage() {
   };
 
   const renderInternshipCard = (internship) => (
-    <div key={internship.id || Math.random()} style={styles.internshipCard}>
-      <div style={styles.cardHeaderRow}>
-        <span style={{
-          ...styles.badge,
-          backgroundColor: internship.stipend && Number(internship.stipend) > 0 ? 'rgba(0,128,0,0.1)' : 'rgba(255,0,0,0.1)',
-          color: internship.stipend && Number(internship.stipend) > 0 ? 'green' : 'red'
-        }}>
+    <div key={internship.id || Math.random()} className="bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl p-6 mb-4 hover:shadow-lg transition-all dark:text-white">
+      <div className="flex justify-between items-center mb-4">
+        <span className={`px-3 py-1 rounded-full text-xs font-bold ${internship.stipend && Number(internship.stipend) > 0
+          ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+          : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+          }`}>
           {internship.stipend && Number(internship.stipend) > 0 ? 'Paid Internship' : 'Unpaid Internship'}
         </span>
         {internship.score !== undefined && (
-          <div style={styles.scoreContainer}>
-            <div style={styles.scoreCircle}>
-              <span style={styles.scoreText}>{(internship.score * 100).toFixed(1)}%</span>
+          <div className="flex items-center gap-2">
+            <div className="w-10 h-10 rounded-full border-2 border-primary flex items-center justify-center bg-primary/10">
+              <span className="text-[10px] font-bold text-primary">{(internship.score * 100).toFixed(0)}%</span>
             </div>
-            <span style={styles.matchText}>Match</span>
+            <span className="text-xs opacity-60">Match</span>
           </div>
         )}
       </div>
 
-      <h3 style={styles.internshipTitle}>{internship.title || "Title not available"}</h3>
-      <p style={styles.companyName}>
+      <h3 className="text-lg font-bold mb-1">{internship.title || "Title not available"}</h3>
+      <p className="text-sm opacity-70 mb-4">
         <strong>Company:</strong> {internship.companyName || "Company not available"}
       </p>
 
       {internship.locationCity && (
-        <p style={styles.infoRow}>
-          📍 <strong>Location:</strong> {internship.locationCity}
+        <p className="flex items-center gap-2 text-sm opacity-70 mb-2">
+          <span className="material-symbols-outlined text-sm">location_on</span>
+          {internship.locationCity}
         </p>
       )}
 
       {internship.duration && (
-        <p style={styles.infoRow}>
-          ⏱️ <strong>Duration:</strong> {internship.duration} months
+        <p className="flex items-center gap-2 text-sm opacity-70 mb-2">
+          <span className="material-symbols-outlined text-sm">schedule</span>
+          {internship.duration} months
         </p>
       )}
 
-      <p style={styles.endDate}>
-        <strong>Ends On:</strong> {internship.endDate 
+      <p className="text-primary font-medium text-sm mb-2">
+        <strong>Ends On:</strong> {internship.endDate
           ? new Date(internship.endDate).toLocaleDateString("en-IN", {
-              year: "numeric",
-              month: "short",
-              day: "numeric",
-            })
+            year: "numeric", month: "short", day: "numeric",
+          })
           : "No End Date"}
       </p>
 
-      <p style={{
-        ...styles.stipend,
-        color: internship.stipend && Number(internship.stipend) > 0 ? 'green' : 'red'
-      }}>
+      <p className={`text-sm font-bold mb-4 ${internship.stipend && Number(internship.stipend) > 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
+        }`}>
         <strong>Stipend:</strong> {internship.stipend && Number(internship.stipend) > 0 ? `₹${internship.stipend}/month` : 'Unpaid'}
       </p>
 
       {internship.skills?.length > 0 && (
-        <div style={styles.skillsContainer}>
-          <strong>Skills:</strong>
-          <div style={styles.skillsWrapper}>
+        <div className="mb-4">
+          <strong className="text-xs uppercase opacity-70 block mb-2">Skills</strong>
+          <div className="flex flex-wrap gap-2">
             {internship.skills.slice(0, 3).map((skill, index) => (
-              <span key={index} style={styles.skillChip}>
+              <span key={index} className="px-3 py-1 bg-primary/10 text-primary text-xs rounded-full dark:bg-primary/20">
                 {skill}
               </span>
             ))}
             {internship.skills.length > 3 && (
-              <span 
-                style={{...styles.skillChip, ...styles.moreSkills}}
+              <span
+                className="px-3 py-1 bg-gray-100 dark:bg-white/10 text-xs rounded-full cursor-pointer hover:bg-gray-200 dark:hover:bg-white/20"
                 onClick={() => handleShowMoreSkills(internship)}
               >
                 +{internship.skills.length - 3} more
@@ -219,15 +304,15 @@ function ResumePage() {
         </div>
       )}
 
-      <div style={styles.cardActions}>
-        <button 
-          style={styles.viewDetailsBtn}
+      <div className="flex justify-end gap-2 mt-4">
+        <button
+          className="px-4 py-2 rounded-lg border border-primary text-primary hover:bg-primary/5 transition-colors text-sm font-bold"
           onClick={() => handleOpenDetailDialog(internship)}
         >
           View Details
         </button>
-        <button 
-          style={styles.applyBtn}
+        <button
+          className="px-4 py-2 rounded-lg bg-primary text-white hover:opacity-90 transition-opacity text-sm font-bold"
           onClick={() => navigate("/apply")}
         >
           Apply
@@ -236,627 +321,257 @@ function ResumePage() {
     </div>
   );
 
-  // Inline styles
-  const styles = {
-    container: {
-      minHeight: '100vh',
-      backgroundColor: '#f8fafc',
-      fontFamily: 'Arial, sans-serif'
-    },
-    toast: {
-      position: 'fixed',
-      top: '20px',
-      right: '20px',
-      backgroundColor: '#10b981',
-      color: 'white',
-      padding: '12px 16px',
-      borderRadius: '8px',
-      boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
-      zIndex: 1000,
-      transition: 'all 0.3s ease',
-      display: showToast ? 'block' : 'none'
-    },
-    appBar: {
-      backgroundColor: '#2563eb',
-      color: 'white',
-      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-    },
-    toolbar: {
-      display: 'flex',
-      alignItems: 'center',
-      padding: '12px 16px'
-    },
-    backButton: {
-      marginRight: '12px',
-      padding: '8px',
-      backgroundColor: 'transparent',
-      border: 'none',
-      color: 'white',
-      borderRadius: '4px',
-      cursor: 'pointer',
-      fontSize: '20px'
-    },
-    title: {
-      fontSize: '20px',
-      fontWeight: '600',
-      margin: 0
-    },
-    mainContent: {
-      maxWidth: '768px',
-      margin: '0 auto',
-      padding: '32px 16px'
-    },
-    centerText: {
-      textAlign: 'center',
-      marginBottom: '32px'
-    },
-    heading: {
-      fontSize: '24px',
-      fontWeight: 'bold',
-      color: '#1f2937',
-      marginBottom: '8px'
-    },
-    cardContainer: {
-      display: 'flex',
-      gap: '16px',
-      marginBottom: '24px',
-      flexDirection: window.innerWidth < 640 ? 'column' : 'row'
-    },
-    card: {
-      flex: 1,
-      border: '1px solid #d1d5db',
-      borderRadius: '8px',
-      cursor: 'pointer',
-      transition: 'all 0.2s ease',
-      backgroundColor: 'white'
-    },
-    cardSelected: {
-      borderColor: '#3b82f6',
-      backgroundColor: '#eff6ff'
-    },
-    cardHeader: {
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '24px 16px',
-      textAlign: 'center'
-    },
-    cardHeaderContent: {
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      gap: '12px'
-    },
-    icon: {
-      fontSize: '48px',
-      marginBottom: '8px'
-    },
-    cardTitle: {
-      fontWeight: '600',
-      margin: 0,
-      fontSize: '18px',
-      color: '#1f2937',
-      marginBottom: '12px'
-    },
-    cardDescription: {
-      fontSize: '14px',
-      color: '#6b7280',
-      textAlign: 'center',
-      lineHeight: '1.5',
-      margin: 0
-    },
-    button: {
-      width: '100%',
-      padding: '12px 16px',
-      borderRadius: '8px',
-      fontWeight: '500',
-      transition: 'all 0.2s ease',
-      marginBottom: '24px',
-      border: 'none',
-      cursor: 'pointer',
-      fontSize: '16px'
-    },
-    buttonEnabled: {
-      backgroundColor: '#2563eb',
-      color: 'white',
-      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-    },
-    buttonDisabled: {
-      backgroundColor: '#d1d5db',
-      color: '#9ca3af',
-      cursor: 'not-allowed'
-    },
-    infoCard: {
-      backgroundColor: 'white',
-      border: '1px solid #e5e7eb',
-      borderRadius: '8px',
-      boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
-    },
-    infoCardContent: {
-      padding: '24px'
-    },
-    infoTitle: {
-      fontSize: '18px',
-      fontWeight: '600',
-      color: '#1f2937',
-      marginBottom: '8px'
-    },
-    infoText: {
-      color: '#6b7280',
-      margin: 0,
-      lineHeight: '1.6'
-    },
-    // Dialog styles
-    dialogOverlay: {
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundColor: 'rgba(0, 0, 0, 0.5)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      zIndex: 1000
-    },
-    dialog: {
-      backgroundColor: 'white',
-      borderRadius: '12px',
-      width: '90%',
-      maxWidth: '800px',
-      maxHeight: '90vh',
-      display: 'flex',
-      flexDirection: 'column',
-      boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)'
-    },
-    dialogTitle: {
-      padding: '24px',
-      borderBottom: '1px solid #e5e7eb',
-      fontSize: '20px',
-      fontWeight: 'bold',
-      color: '#1f2937'
-    },
-    dialogContent: {
-      padding: '24px',
-      overflowY: 'auto',
-      flex: 1
-    },
-    dialogActions: {
-      padding: '16px 24px',
-      borderTop: '1px solid #e5e7eb',
-      display: 'flex',
-      justifyContent: 'flex-end',
-      gap: '12px'
-    },
-    dialogButton: {
-      padding: '8px 16px',
-      borderRadius: '6px',
-      border: 'none',
-      cursor: 'pointer',
-      fontSize: '14px',
-      fontWeight: '500',
-      transition: 'all 0.2s ease'
-    },
-    closeButton: {
-      backgroundColor: '#e5e7eb',
-      color: '#374151'
-    },
-    // Internship card styles
-    internshipCard: {
-      padding: '20px',
-      borderRadius: '12px',
-      border: '1px solid rgba(0,0,0,0.1)',
-      marginBottom: '16px',
-      backgroundColor: 'white',
-      transition: 'transform 0.25s, box-shadow 0.25s',
-      cursor: 'default'
-    },
-    cardHeaderRow: {
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      marginBottom: '12px'
-    },
-    badge: {
-      padding: '4px 12px',
-      borderRadius: '16px',
-      fontSize: '12px',
-      fontWeight: 'bold'
-    },
-    scoreContainer: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: '8px'
-    },
-    scoreCircle: {
-      width: '50px',
-      height: '50px',
-      borderRadius: '50%',
-      border: '4px solid #1a73e8',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      backgroundColor: 'rgba(26, 115, 232, 0.1)'
-    },
-    scoreText: {
-      fontSize: '12px',
-      fontWeight: 'bold',
-      color: '#1a73e8'
-    },
-    matchText: {
-      fontSize: '12px',
-      color: '#6b7280'
-    },
-    internshipTitle: {
-      fontSize: '18px',
-      fontWeight: 'bold',
-      marginBottom: '8px',
-      color: '#1f2937'
-    },
-    companyName: {
-      fontSize: '14px',
-      marginBottom: '8px',
-      color: '#4b5563'
-    },
-    infoRow: {
-      fontSize: '14px',
-      marginBottom: '6px',
-      color: '#4b5563',
-      display: 'flex',
-      alignItems: 'center',
-      gap: '4px'
-    },
-    endDate: {
-      fontSize: '14px',
-      color: '#1a73e8',
-      fontWeight: '500',
-      marginBottom: '8px'
-    },
-    stipend: {
-      fontSize: '14px',
-      fontWeight: 'bold',
-      marginBottom: '12px'
-    },
-    skillsContainer: {
-      marginBottom: '16px',
-      fontSize: '14px'
-    },
-    skillsWrapper: {
-      display: 'flex',
-      flexWrap: 'wrap',
-      gap: '8px',
-      marginTop: '8px'
-    },
-    skillChip: {
-      padding: '4px 12px',
-      borderRadius: '16px',
-      backgroundColor: 'rgba(25, 118, 210, 0.05)',
-      border: '1px solid rgba(0,0,0,0.1)',
-      fontSize: '12px',
-      color: '#1a73e8'
-    },
-    moreSkills: {
-      cursor: 'pointer',
-      backgroundColor: 'rgba(25, 118, 210, 0.1)',
-      fontWeight: '500'
-    },
-    cardActions: {
-      display: 'flex',
-      justifyContent: 'flex-end',
-      gap: '8px'
-    },
-    viewDetailsBtn: {
-      padding: '8px 16px',
-      borderRadius: '6px',
-      border: '1px solid #1a73e8',
-      backgroundColor: 'white',
-      color: '#1a73e8',
-      cursor: 'pointer',
-      fontSize: '14px',
-      fontWeight: '500',
-      transition: 'all 0.2s ease'
-    },
-    applyBtn: {
-      padding: '8px 16px',
-      borderRadius: '6px',
-      border: 'none',
-      backgroundColor: '#1a73e8',
-      color: 'white',
-      cursor: 'pointer',
-      fontSize: '14px',
-      fontWeight: '500',
-      transition: 'all 0.2s ease'
-    },
-    showMoreButton: {
-      padding: '10px 20px',
-      borderRadius: '6px',
-      border: '1px solid #1a73e8',
-      backgroundColor: 'white',
-      color: '#1a73e8',
-      cursor: 'pointer',
-      fontSize: '14px',
-      fontWeight: '500',
-      marginTop: '16px',
-      marginBottom: '16px',
-      display: 'flex',
-      alignItems: 'center',
-      gap: '8px'
-    },
-    loadingSpinner: {
-      display: 'inline-block',
-      width: '20px',
-      height: '20px',
-      border: '3px solid rgba(0,0,0,0.1)',
-      borderTop: '3px solid #2563eb',
-      borderRadius: '50%',
-      animation: 'spin 1s linear infinite'
-    }
-  };
-
   return (
-    <div style={styles.container}>
-      {/* Add keyframes for loading spinner */}
-      <style>{`
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-      `}</style>
+    <div className="bg-background-light dark:bg-background-dark font-display text-[#130d1c] dark:text-white transition-colors duration-300 min-h-screen flex flex-col relative overflow-x-hidden">
 
-      {/* Toast Notification */}
-      <div style={styles.toast}>
-        {toastMessage}
+      {/* Background Effects */}
+      <div className="fixed inset-0 z-0 gradient-bg">
+        <div className="absolute inset-0 opacity-20 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '40px 40px' }}></div>
       </div>
 
-      {/* App Bar */}
-      <div style={styles.appBar}>
-        <div style={styles.toolbar}>
-          <button 
-            style={styles.backButton}
-            onMouseEnter={(e) => e.target.style.backgroundColor = '#1d4ed8'}
-            onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
-            onClick={() => navigate(-1)}
-          >
-            ←
-          </button>
-          <h1 style={styles.title}>PM Internship Scheme</h1>
-        </div>
+      {/* Navbar */}
+      <div className="fixed top-0 left-0 right-0 z-50 px-4 py-4">
+        <header className="max-w-[1200px] mx-auto glass rounded-full px-6 py-3 flex items-center justify-between shadow-lg border border-white/20 dark:border-white/10">
+          <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/')}>
+            <h2 className="text-lg font-bold tracking-tight">InternFinder</h2>
+          </div>
+
+          <nav className="hidden md:flex items-center gap-1">
+            {[
+              { label: "Dashboard", path: "/home", icon: "dashboard" },
+              { label: "Internships", path: "/resume", icon: "travel_explore" },
+              { label: "Applied", path: "/saved", icon: "assignment_turned_in" },
+              { label: "Profile", path: "/profile", icon: "person" },
+              { label: "About", path: "/about", icon: "info" },
+            ].map((item) => (
+              <button
+                key={item.label}
+                onClick={() => navigate(item.path)}
+                className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all ${item.path === "/resume"
+                  ? "bg-primary text-white shadow-lg shadow-primary/25"
+                  : "hover:bg-black/5 dark:hover:bg-white/10"
+                  }`}
+              >
+                <span className="material-symbols-outlined text-[18px]">{item.icon}</span>
+                {item.label}
+              </button>
+            ))}
+          </nav>
+
+          <div className="flex items-center gap-2">
+            <button className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors" onClick={toggleDarkMode}>
+              <span className="material-symbols-outlined text-[20px]">{isDarkMode ? 'light_mode' : 'dark_mode'}</span>
+            </button>
+            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-orange-400 to-red-500 flex items-center justify-center text-white font-bold text-sm">
+              {user.name && user.name.charAt(0)}
+            </div>
+          </div>
+        </header>
       </div>
 
       {/* Main Content */}
-      <div style={styles.mainContent}>
-        <div style={styles.centerText}>
-          <h2 style={styles.heading}>
-            Choose your preferred method
-          </h2>
-        </div>
+      <main className="relative z-10 pt-24 pb-6 px-4 container mx-auto max-w-[900px]">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center mb-10"
+        >
+          <h2 className="text-3xl font-black mb-2">Find Your Perfect Internship</h2>
+          <p className="text-lg opacity-60">Choose how you want to search for opportunities</p>
+        </motion.div>
 
-        <div style={styles.cardContainer}>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           {/* Manual Entry Card */}
-          <div
-            style={{
-              ...styles.card,
-              ...(selectedMethod === 'manual' ? styles.cardSelected : {})
-            }}
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.1 }}
+            className={`glass p-8 rounded-3xl cursor-pointer transition-all border-2 ${selectedMethod === 'manual' ? 'border-primary shadow-lg shadow-primary/20' : 'border-transparent hover:border-primary/50'
+              }`}
             onClick={() => handleCardClick('manual')}
           >
-            <div style={styles.cardHeader}>
-              <div style={styles.cardHeaderContent}>
-                <span style={styles.icon}>✏️</span>
-                <h3 style={styles.cardTitle}>Enter Skills Manually</h3>
-                <p style={styles.cardDescription}>
-                  Fill out a simple form with your skills, preferred sectors, and internship type preferences
-                </p>
-              </div>
+            <div className="text-center">
+              <span className="text-6xl mb-4 block">✏️</span>
+              <h3 className="text-xl font-bold mb-2">Enter Skills Manually</h3>
+              <p className="opacity-60 text-sm">
+                Fill out a simple form with your skills, preferred sectors, and internship type preferences
+              </p>
             </div>
-          </div>
+          </motion.div>
 
           {/* Upload Resume Card */}
-          <div
-            style={{
-              ...styles.card,
-              ...(selectedMethod === 'upload' ? styles.cardSelected : {})
-            }}
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.2 }}
+            className={`glass p-8 rounded-3xl cursor-pointer transition-all border-2 ${selectedMethod === 'upload' ? 'border-primary shadow-lg shadow-primary/20' : 'border-transparent hover:border-primary/50'
+              }`}
             onClick={() => handleCardClick('upload')}
           >
-            <div style={styles.cardHeader}>
-              <div style={styles.cardHeaderContent}>
-                <span style={styles.icon}>📄</span>
-                <h3 style={styles.cardTitle}>Upload Your Resume</h3>
-                <p style={styles.cardDescription}>
-                  Upload your resume and let our system automatically extract your skills and experience
-                </p>
-              </div>
+            <div className="text-center">
+              <span className="text-6xl mb-4 block">📄</span>
+              <h3 className="text-xl font-bold mb-2">Upload Your Resume</h3>
+              <p className="opacity-60 text-sm">
+                Upload your resume and let our system automatically extract your skills and experience
+              </p>
             </div>
-          </div>
+          </motion.div>
         </div>
 
         {/* Submit Button */}
-        <button
-          style={{
-            ...styles.button,
-            ...(selectedMethod ? styles.buttonEnabled : styles.buttonDisabled)
-          }}
+        <motion.button
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className={`w-full py-4 rounded-xl font-bold text-lg shadow-lg transition-all ${!selectedMethod || loading
+            ? 'bg-gray-500 dark:bg-white/5 text-white cursor-not-allowed'
+            : 'bg-primary text-white hover:scale-[1.02] active:scale-[0.98]'
+            }`}
           disabled={!selectedMethod || loading}
           onClick={handleButtonClick}
         >
           {loading ? (
-            <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-              <span style={styles.loadingSpinner}></span>
+            <span className="flex items-center justify-center gap-2">
+              <span className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin"></span>
               Processing...
             </span>
           ) : (
             selectedMethod === 'manual'
               ? 'Continue with Manual Entry'
               : selectedMethod === 'upload'
-              ? 'Continue with Resume Upload'
-              : 'Select a method to proceed'
+                ? 'Continue with Resume Upload'
+                : 'Select a method to proceed'
           )}
-        </button>
+        </motion.button>
 
-        {/* Information Card */}
-        <div style={styles.infoCard}>
-          <div style={styles.infoCardContent}>
-            <h3 style={styles.infoTitle}>
-              Need Help Deciding?
-            </h3>
-            <p style={styles.infoText}>
+        {/* Info Card */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          className="mt-8 glass p-6 rounded-2xl flex items-start gap-4"
+        >
+          <span className="material-symbols-outlined text-primary text-3xl">lightbulb</span>
+          <div>
+            <h3 className="font-bold text-lg mb-1">Need Help Deciding?</h3>
+            <p className="text-sm opacity-70 leading-relaxed">
               <strong>Manual Entry</strong> gives you full control over your profile. <strong>Resume Upload</strong> automatically extracts your information and provides instant recommendations.
             </p>
           </div>
-        </div>
-      </div>
+        </motion.div>
+      </main>
+
+      <Footer />
 
       {/* Results Dialog */}
       {openResultsDialog && (
-        <div style={styles.dialogOverlay}>
-          <div style={styles.dialog}>
-            <div style={styles.dialogTitle}>Recommended Internships</div>
-            <div style={styles.dialogContent}>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="bg-white dark:bg-[#1a1f2e] w-full max-w-3xl rounded-3xl shadow-2xl max-h-[90vh] flex flex-col overflow-hidden"
+          >
+            <div className="p-6 border-b border-gray-200 dark:border-white/10 flex justify-between items-center">
+              <h2 className="text-2xl font-bold">Recommended Internships</h2>
+              <button onClick={() => setOpenResultsDialog(false)} className="p-2 hover:bg-black/5 dark:hover:bg-white/10 rounded-full">
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+
+            <div className="p-6 overflow-y-auto flex-1 bg-slate-50 dark:bg-black/20">
               {results && results.length > 0 ? (
                 <div>
                   {results.slice(0, 4).map(renderInternshipCard)}
-                  
+
                   {results.length > 4 && (
                     <>
                       <button
-                        style={styles.showMoreButton}
+                        className="w-full py-3 mt-4 text-primary font-bold bg-primary/10 rounded-xl hover:bg-primary/20 transition-colors flex items-center justify-center gap-2"
                         onClick={() => setShowMore(!showMore)}
                       >
                         {showMore ? 'Show Less' : `Show ${results.length - 4} More`}
-                        <span style={{ transform: showMore ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.3s' }}>
-                          ▼
-                        </span>
+                        <span className={`material-symbols-outlined transition-transform ${showMore ? 'rotate-180' : ''}`}>expand_more</span>
                       </button>
-                      
+
                       {showMore && results.slice(4).map(renderInternshipCard)}
                     </>
                   )}
                 </div>
               ) : (
-                <p>No internships found</p>
+                <div className="text-center py-10 opacity-60">
+                  <span className="material-symbols-outlined text-4xl mb-2">search_off</span>
+                  <p>No internships found</p>
+                </div>
               )}
             </div>
-            <div style={styles.dialogActions}>
-              <button
-                style={{ ...styles.dialogButton, ...styles.closeButton }}
-                onClick={() => setOpenResultsDialog(false)}
-              >
-                Close
-              </button>
-            </div>
-          </div>
+          </motion.div>
         </div>
       )}
 
       {/* Skills Dialog */}
       {openSkillsDialog && (
-        <div style={styles.dialogOverlay}>
-          <div style={{ ...styles.dialog, maxWidth: '500px' }}>
-            <div style={styles.dialogTitle}>Skills</div>
-            <div style={styles.dialogContent}>
-              <div style={styles.skillsWrapper}>
-                {dialogSkills.map((skill, idx) => (
-                  <span key={idx} style={styles.skillChip}>
-                    {skill}
-                  </span>
-                ))}
-              </div>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="bg-white dark:bg-[#1a1f2e] w-full max-w-md rounded-3xl shadow-2xl p-6"
+          >
+            <h3 className="text-xl font-bold mb-4">Skills</h3>
+            <div className="flex flex-wrap gap-2 mb-6">
+              {dialogSkills.map((skill, idx) => (
+                <span key={idx} className="px-3 py-1 bg-primary/10 text-primary rounded-full dark:bg-primary/20 text-sm font-medium">
+                  {skill}
+                </span>
+              ))}
             </div>
-            <div style={styles.dialogActions}>
+            <div className="flex justify-end">
               <button
-                style={{ ...styles.dialogButton, ...styles.closeButton }}
+                className="px-4 py-2 bg-gray-100 dark:bg-white/10 rounded-lg font-bold hover:bg-gray-200 dark:hover:bg-white/20 transition-colors"
                 onClick={handleCloseSkillsDialog}
               >
                 Close
               </button>
             </div>
-          </div>
+          </motion.div>
         </div>
       )}
 
       {/* Internship Detail Dialog */}
       {openDetailDialog && selectedInternship && (
-        <div style={styles.dialogOverlay}>
-          <div style={{ ...styles.dialog, maxWidth: '600px' }}>
-            <div style={styles.dialogTitle}>{selectedInternship.title}</div>
-            <div style={styles.dialogContent}>
-              <p style={{ marginBottom: '12px' }}>
-                <strong>Company:</strong> {selectedInternship.companyName || "N/A"}
-              </p>
-
-              {selectedInternship.locationCity && (
-                <p style={{ marginBottom: '12px' }}>
-                  📍 <strong>Location:</strong> {selectedInternship.locationCity}
-                </p>
-              )}
-
-              {selectedInternship.duration && (
-                <p style={{ marginBottom: '12px' }}>
-                  ⏱️ <strong>Duration:</strong> {selectedInternship.duration} months
-                </p>
-              )}
-
-              {selectedInternship.endDate && (
-                <p style={{ marginBottom: '12px', color: '#1a73e8', fontWeight: '500' }}>
-                  <strong>Ends On:</strong> {new Date(selectedInternship.endDate).toLocaleDateString("en-IN", {
-                    year: "numeric",
-                    month: "short",
-                    day: "numeric",
-                  })}
-                </p>
-              )}
-
-              <p style={{
-                marginBottom: '12px',
-                color: selectedInternship.stipend && Number(selectedInternship.stipend) > 0 ? 'green' : 'red',
-                fontWeight: 'bold'
-              }}>
-                <strong>Stipend:</strong> {selectedInternship.stipend && Number(selectedInternship.stipend) > 0
-                  ? `₹${selectedInternship.stipend}/month`
-                  : "Unpaid"}
-              </p>
-
-              {selectedInternship.description && (
-                <div style={{ marginTop: '16px', marginBottom: '12px' }}>
-                  <strong>Description:</strong>
-                  <p style={{ marginTop: '8px', color: '#4b5563', lineHeight: '1.6' }}>
-                    {selectedInternship.description}
-                  </p>
-                </div>
-              )}
-
-              {selectedInternship.skills?.length > 0 && (
-                <div style={{ marginTop: '16px' }}>
-                  <strong>Skills Required:</strong>
-                  <div style={styles.skillsWrapper}>
-                    {selectedInternship.skills.map((skill, idx) => (
-                      <span key={idx} style={styles.skillChip}>
-                        {skill}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-            <div style={styles.dialogActions}>
-              <button
-                style={{ ...styles.dialogButton, ...styles.closeButton }}
-                onClick={handleCloseDetailDialog}
-              >
-                Close
-              </button>
-              <button
-                style={{ ...styles.dialogButton, backgroundColor: '#1a73e8', color: 'white' }}
-                onClick={() => navigate("/apply")}
-              >
-                Apply Now
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="bg-white dark:bg-[#1a1f2e] w-full max-w-xl rounded-3xl shadow-2xl p-8 max-h-[90vh] overflow-y-auto"
+          >
+            <div className="flex justify-between items-start mb-6">
+              <h2 className="text-2xl font-bold leading-tight">{selectedInternship.title}</h2>
+              <button onClick={handleCloseDetailDialog} className="p-2 hover:bg-black/5 dark:hover:bg-white/10 rounded-full">
+                <span className="material-symbols-outlined">close</span>
               </button>
             </div>
-          </div>
+
+            <div className="space-y-4 text-base opacity-80">
+              <p><strong>Company:</strong> {selectedInternship.companyName || "N/A"}</p>
+              {selectedInternship.locationCity && <p><strong>Location:</strong> {selectedInternship.locationCity}</p>}
+              {selectedInternship.duration && <p><strong>Duration:</strong> {selectedInternship.duration} months</p>}
+
+              {/* Add more details here if available in the object */}
+              <div className="bg-primary/5 p-4 rounded-xl mt-4">
+                <p className="text-sm opacity-100">
+                  <strong>Note:</strong> Detailed description functionality would go here.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3 mt-8">
+              <button className="px-5 py-2.5 rounded-xl border border-gray-300 dark:border-white/10 font-bold hover:bg-gray-50 dark:hover:bg-white/5" onClick={handleCloseDetailDialog}>Close</button>
+              <button className="px-5 py-2.5 rounded-xl bg-primary text-white font-bold hover:opacity-90" onClick={() => navigate("/apply")}>Apply Now</button>
+            </div>
+          </motion.div>
         </div>
       )}
+
     </div>
   );
 }
