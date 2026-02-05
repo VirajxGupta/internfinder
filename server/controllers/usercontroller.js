@@ -1,5 +1,5 @@
 
-import { db } from "../firebaseAdmin.js"; // ✅ sirf db import kar
+import { db, auth } from "../firebaseAdmin.js"; // ✅ sirf db import kar
 import admin from "firebase-admin";
 // userController.js
 import { createUser, getUsers, getUserByEmail } from "../models/userModel.js";
@@ -51,6 +51,42 @@ export const login = async (req, res) => {
   }
 };
 
+
+// GOOGLE LOGIN
+export const googleLogin = async (req, res) => {
+  const { token } = req.body;
+
+  try {
+    const decodedToken = await auth.verifyIdToken(token);
+    const { name, email, picture, uid } = decodedToken;
+
+    // Check if user exists
+    let user = await getUserByEmail(email);
+
+    if (!user) {
+      // Create new user if doesn't exist
+      // Note: We might want to set a random password or mark as google-auth user
+      // For now, we'll create a user with a dummy password or modify model to support no-password
+      // Assuming model requires password, we generate a random hash
+      const randomPassword = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8);
+      const hashedPassword = await bcrypt.hash(randomPassword, 10);
+
+      user = await createUser({
+        name: name || "Google User",
+        email,
+        password: hashedPassword,
+        photo: picture
+      });
+    }
+
+    // You might want to update the photo if it changed, logic here...
+
+    res.status(200).json({ user, message: "Google Login successful \u2705" });
+  } catch (error) {
+    console.error("Google Auth Error:", error);
+    res.status(401).json({ message: "Invalid Google Token \u274C" });
+  }
+};
 
 // LOGOUT
 export const logout = async (req, res) => {

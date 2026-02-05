@@ -3,6 +3,7 @@ import axios from "axios";
 import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 import { motion, AnimatePresence, useAnimation } from "framer-motion";
 import { toast } from "react-hot-toast";
+import { X, Send, Bot } from "lucide-react";
 
 export default function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
@@ -149,7 +150,7 @@ export default function Chatbot() {
                 onClick={toggleChat}
                 className="p-2 hover:bg-white/20 rounded-full transition-colors"
               >
-                <span className="material-symbols-outlined text-xl">close</span>
+                <X size={20} />
               </button>
             </div>
 
@@ -200,7 +201,7 @@ export default function Chatbot() {
                   disabled={isLoading || !inputText.trim()}
                   className="absolute right-2 p-2 bg-primary text-white rounded-lg hover:bg-primary/80 disabled:opacity-50 disabled:hover:bg-primary transition-all shadow-lg shadow-primary/20"
                 >
-                  <span className="material-symbols-outlined text-[20px] block">send</span>
+                  <Send size={20} />
                 </button>
               </div>
             </div>
@@ -222,7 +223,7 @@ export default function Chatbot() {
             className="group relative focus:outline-none"
           >
             <div className="relative w-16 h-16 flex items-center justify-center bg-gradient-to-tr from-primary to-purple-600 rounded-full shadow-lg shadow-primary/30 group-hover:shadow-primary/50 transition-all duration-300">
-              <span className="material-symbols-outlined text-4xl text-white">smart_toy</span>
+              <Bot size={32} className="text-white" />
 
               {/* Pulse Ring */}
               <div className="absolute inset-0 border-2 border-white/20 rounded-full animate-ping opacity-20"></div>

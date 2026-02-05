@@ -22,4 +22,4 @@ const rtdb = admin.database();
 const auth = admin.auth();
 
 // Export both
-export { db, rtdb};
+export { db, rtdb, auth };

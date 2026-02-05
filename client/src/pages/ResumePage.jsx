@@ -4,65 +4,57 @@ import { doc, getDoc } from "firebase/firestore";
 import { db } from "../firebase";
 import { toast } from "react-hot-toast";
 import { motion } from "framer-motion";
+import { LayoutDashboard, Compass, CheckCircle, User, Info, Sun, Moon, MapPin, Clock, ChevronDown, X, SearchX, Lightbulb, PenTool, FileText, Upload, Briefcase, IndianRupee, Mail, Phone } from "lucide-react";
+import Navbar from "../components/Navbar";
 
 // Footer Component (Internal definition)
 const Footer = () => (
-  <footer className="bg-[#0a45a3] text-white pt-8 pb-6 border-t border-white/10 mt-10">
-    <div className="max-w-[1200px] mx-auto px-4">
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+  <footer className="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 pt-12 pb-8 mt-12">
+    <div className="max-w-6xl mx-auto px-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
         <div>
-          <h3 className="font-bold text-lg mb-4 flex items-center">
+          <h3 className="font-semibold text-slate-900 dark:text-white text-lg mb-4 flex items-center gap-2">
             InternFinder
           </h3>
-          <p className="text-white/60 text-sm leading-relaxed mb-4">
-            Bridging the gap between academic learning and industry requirements through quality internship opportunities in India's leading companies.
+          <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed mb-4">
+            Connecting top talent with India's premier authorized internships.
+            <br />
+            <span className="text-xs opacity-70">An initiative by the Ministry of Corporate Affairs.</span>
           </p>
-          <p className="text-white/60 text-xs">Ministry of Corporate Affairs</p>
         </div>
         <div>
-          <h3 className="font-bold text-lg mb-4">Quick Links</h3>
-          <ul className="space-y-2 text-sm text-white/60">
-            <li><a href="#" className="hover:text-white transition-colors">Guidelines & Instructions</a></li>
-            <li><a href="#" className="hover:text-white transition-colors">Eligibility Criteria</a></li>
-            <li><a href="#" className="hover:text-white transition-colors">Application Process</a></li>
-            <li><a href="#" className="hover:text-white transition-colors">Frequently Asked Questions</a></li>
+          <h3 className="font-semibold text-slate-900 dark:text-white text-sm mb-4 uppercase tracking-wider">Platform</h3>
+          <ul className="space-y-3 text-sm text-slate-500 dark:text-slate-400">
+            <li><a href="#" className="hover:text-[#6B629D] transition-colors">Browse Internships</a></li>
+            <li><a href="#" className="hover:text-[#6B629D] transition-colors">Eligibility Check</a></li>
+            <li><a href="#" className="hover:text-[#6B629D] transition-colors">Application Status</a></li>
+            <li><a href="#" className="hover:text-[#6B629D] transition-colors">Help Center</a></li>
           </ul>
         </div>
         <div>
-          <h3 className="font-bold text-lg mb-4">Support</h3>
-          <ul className="space-y-3 text-sm text-white/60">
-            <li className="flex items-start gap-2">
-              <span className="material-symbols-outlined text-sm mt-0.5">mail</span>
+          <h3 className="font-semibold text-slate-900 dark:text-white text-sm mb-4 uppercase tracking-wider">Contact</h3>
+          <ul className="space-y-3 text-sm text-slate-500 dark:text-slate-400">
+            <li className="flex items-center gap-2">
+              <Mail size={14} />
               support@internfinder.gov.in
             </li>
-            <li className="flex items-start gap-2">
-              <span className="material-symbols-outlined text-sm mt-0.5">call</span>
-              1800-123-456 (Toll Free)
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="material-symbols-outlined text-sm mt-0.5">location_on</span>
-              Shastri Bhawan, New Delhi - 110001
+            <li className="flex items-center gap-2">
+              <Phone size={14} />
+              1800-123-456
             </li>
           </ul>
         </div>
         <div>
-          <h3 className="font-bold text-lg mb-4">Government Links</h3>
-          <ul className="space-y-2 text-sm text-white/60">
-            <li><a href="https://www.india.gov.in" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">India.gov.in</a></li>
-            <li><a href="https://www.mca.gov.in" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Ministry of Corporate Affairs</a></li>
-            <li><a href="https://digitalindia.gov.in" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Digital India</a></li>
-            <li><a href="https://www.mygov.in" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">MyGov.in</a></li>
+          <h3 className="font-semibold text-slate-900 dark:text-white text-sm mb-4 uppercase tracking-wider">Legal</h3>
+          <ul className="space-y-3 text-sm text-slate-500 dark:text-slate-400">
+            <li><a href="#" className="hover:text-[#6B629D] transition-colors">Privacy Policy</a></li>
+            <li><a href="#" className="hover:text-[#6B629D] transition-colors">Terms of Use</a></li>
+            <li><a href="#" className="hover:text-[#6B629D] transition-colors">Government Compliance</a></li>
           </ul>
         </div>
       </div>
-      <div className="border-t border-white/10 pt-6 flex flex-col md:flex-row items-center justify-between text-xs text-white/40">
-        <p>© 2025 InternFinder. All rights reserved.</p>
-        <div className="flex gap-6 mt-4 md:mt-0">
-          <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
-          <a href="#" className="hover:text-white transition-colors">Terms of Service</a>
-          <a href="#" className="hover:text-white transition-colors">Accessibility</a>
-          <a href="#" className="hover:text-white transition-colors">Sitemap</a>
-        </div>
+      <div className="border-t border-slate-200 dark:border-slate-800 pt-8 flex flex-col md:flex-row items-center justify-between text-xs text-slate-400">
+        <p>&copy; 2025 InternFinder. Government of India.</p>
       </div>
     </div>
   </footer>
@@ -127,10 +119,6 @@ function ResumePage() {
       localStorage.theme = 'dark';
       setIsDarkMode(true);
     }
-  };
-
-  const showNotification = (message) => {
-    toast(message);
   };
 
   const handleCardClick = (method) => {
@@ -233,86 +221,77 @@ function ResumePage() {
   };
 
   const renderInternshipCard = (internship) => (
-    <div key={internship.id || Math.random()} className="bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl p-6 mb-4 hover:shadow-lg transition-all dark:text-white">
+    <div key={internship.id || Math.random()} className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-6 mb-4 hover:shadow-md transition-shadow">
       <div className="flex justify-between items-center mb-4">
-        <span className={`px-3 py-1 rounded-full text-xs font-bold ${internship.stipend && Number(internship.stipend) > 0
+        <span className={`px-2.5 py-1 rounded text-xs font-bold ${internship.stipend && Number(internship.stipend) > 0
           ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-          : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+          : 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300'
           }`}>
-          {internship.stipend && Number(internship.stipend) > 0 ? 'Paid Internship' : 'Unpaid Internship'}
+          {internship.stipend && Number(internship.stipend) > 0 ? 'Paid' : 'Unpaid'}
         </span>
         {internship.score !== undefined && (
           <div className="flex items-center gap-2">
-            <div className="w-10 h-10 rounded-full border-2 border-primary flex items-center justify-center bg-primary/10">
-              <span className="text-[10px] font-bold text-primary">{(internship.score * 100).toFixed(0)}%</span>
+            <div className="px-2 py-1 rounded bg-[#6B629D]/10 text-[#6B629D] dark:bg-[#6B629D]/20 text-xs font-bold">
+              {(internship.score * 100).toFixed(0)}% Match
             </div>
-            <span className="text-xs opacity-60">Match</span>
           </div>
         )}
       </div>
 
-      <h3 className="text-lg font-bold mb-1">{internship.title || "Title not available"}</h3>
-      <p className="text-sm opacity-70 mb-4">
-        <strong>Company:</strong> {internship.companyName || "Company not available"}
+      <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1">{internship.title || "Title not available"}</h3>
+      <p className="text-sm text-slate-500 dark:text-slate-400 mb-4 font-medium">
+        {internship.companyName || "Company not available"}
       </p>
 
       {internship.locationCity && (
-        <p className="flex items-center gap-2 text-sm opacity-70 mb-2">
-          <span className="material-symbols-outlined text-sm">location_on</span>
+        <p className="flex items-center gap-2 text-sm text-slate-500 mb-2">
+          <MapPin size={14} />
           {internship.locationCity}
         </p>
       )}
 
       {internship.duration && (
-        <p className="flex items-center gap-2 text-sm opacity-70 mb-2">
-          <span className="material-symbols-outlined text-sm">schedule</span>
+        <p className="flex items-center gap-2 text-sm text-slate-500 mb-2">
+          <Clock size={14} />
           {internship.duration} months
         </p>
       )}
 
-      <p className="text-primary font-medium text-sm mb-2">
-        <strong>Ends On:</strong> {internship.endDate
-          ? new Date(internship.endDate).toLocaleDateString("en-IN", {
-            year: "numeric", month: "short", day: "numeric",
-          })
-          : "No End Date"}
-      </p>
-
-      <p className={`text-sm font-bold mb-4 ${internship.stipend && Number(internship.stipend) > 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
+      <p className={`text-sm font-bold mb-4 ${internship.stipend && Number(internship.stipend) > 0 ? 'text-slate-700 dark:text-slate-200' : 'text-slate-500'
         }`}>
-        <strong>Stipend:</strong> {internship.stipend && Number(internship.stipend) > 0 ? `₹${internship.stipend}/month` : 'Unpaid'}
+        <span className="flex items-center gap-1 font-normal text-slate-500 text-xs uppercase tracking-wide mb-1">Stipend</span>
+        {internship.stipend && Number(internship.stipend) > 0 ? `₹${internship.stipend}/month` : 'Unpaid'}
       </p>
 
       {internship.skills?.length > 0 && (
-        <div className="mb-4">
-          <strong className="text-xs uppercase opacity-70 block mb-2">Skills</strong>
+        <div className="mb-6">
           <div className="flex flex-wrap gap-2">
             {internship.skills.slice(0, 3).map((skill, index) => (
-              <span key={index} className="px-3 py-1 bg-primary/10 text-primary text-xs rounded-full dark:bg-primary/20">
+              <span key={index} className="px-2 py-1 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs rounded border border-slate-200 dark:border-slate-600">
                 {skill}
               </span>
             ))}
             {internship.skills.length > 3 && (
               <span
-                className="px-3 py-1 bg-gray-100 dark:bg-white/10 text-xs rounded-full cursor-pointer hover:bg-gray-200 dark:hover:bg-white/20"
+                className="px-2 py-1 bg-slate-50 dark:bg-slate-800 text-slate-400 text-xs rounded border border-slate-100 dark:border-slate-700 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700"
                 onClick={() => handleShowMoreSkills(internship)}
               >
-                +{internship.skills.length - 3} more
+                +{internship.skills.length - 3}
               </span>
             )}
           </div>
         </div>
       )}
 
-      <div className="flex justify-end gap-2 mt-4">
+      <div className="flex gap-3 mt-4">
         <button
-          className="px-4 py-2 rounded-lg border border-primary text-primary hover:bg-primary/5 transition-colors text-sm font-bold"
+          className="flex-1 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors text-sm font-semibold"
           onClick={() => handleOpenDetailDialog(internship)}
         >
-          View Details
+          Details
         </button>
         <button
-          className="px-4 py-2 rounded-lg bg-primary text-white hover:opacity-90 transition-opacity text-sm font-bold"
+          className="flex-1 py-2.5 rounded-lg bg-[#6B629D] text-white hover:bg-[#5a5285] transition-colors text-sm font-semibold shadow-sm"
           onClick={() => navigate("/apply")}
         >
           Apply
@@ -322,185 +301,142 @@ function ResumePage() {
   );
 
   return (
-    <div className="bg-background-light dark:bg-background-dark font-display text-[#130d1c] dark:text-white transition-colors duration-300 min-h-screen flex flex-col relative overflow-x-hidden">
-
-      {/* Background Effects */}
-      <div className="fixed inset-0 z-0 gradient-bg">
-        <div className="absolute inset-0 opacity-20 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '40px 40px' }}></div>
-      </div>
+    <div className="bg-slate-50 dark:bg-[#0B1120] min-h-screen font-sans text-slate-900 dark:text-slate-100 transition-colors duration-300">
 
       {/* Navbar */}
-      <div className="fixed top-0 left-0 right-0 z-50 px-4 py-4">
-        <header className="max-w-[1200px] mx-auto glass rounded-full px-6 py-3 flex items-center justify-between shadow-lg border border-white/20 dark:border-white/10">
-          <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/')}>
-            <h2 className="text-lg font-bold tracking-tight">InternFinder</h2>
-          </div>
-
-          <nav className="hidden md:flex items-center gap-1">
-            {[
-              { label: "Dashboard", path: "/home", icon: "dashboard" },
-              { label: "Internships", path: "/resume", icon: "travel_explore" },
-              { label: "Applied", path: "/saved", icon: "assignment_turned_in" },
-              { label: "Profile", path: "/profile", icon: "person" },
-              { label: "About", path: "/about", icon: "info" },
-            ].map((item) => (
-              <button
-                key={item.label}
-                onClick={() => navigate(item.path)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all ${item.path === "/resume"
-                  ? "bg-primary text-white shadow-lg shadow-primary/25"
-                  : "hover:bg-black/5 dark:hover:bg-white/10"
-                  }`}
-              >
-                <span className="material-symbols-outlined text-[18px]">{item.icon}</span>
-                {item.label}
-              </button>
-            ))}
-          </nav>
-
-          <div className="flex items-center gap-2">
-            <button className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors" onClick={toggleDarkMode}>
-              <span className="material-symbols-outlined text-[20px]">{isDarkMode ? 'light_mode' : 'dark_mode'}</span>
-            </button>
-            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-orange-400 to-red-500 flex items-center justify-center text-white font-bold text-sm">
-              {user.name && user.name.charAt(0)}
-            </div>
-          </div>
-        </header>
-      </div>
+      <Navbar />
 
       {/* Main Content */}
-      <main className="relative z-10 pt-24 pb-6 px-4 container mx-auto max-w-[900px]">
+      <main className="max-w-4xl mx-auto px-6 py-16">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-10"
+          className="text-center mb-12"
         >
-          <h2 className="text-3xl font-black mb-2">Find Your Perfect Internship</h2>
-          <p className="text-lg opacity-60">Choose how you want to search for opportunities</p>
+          <h1 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-4">Find Your Perfect Internship</h1>
+          <p className="text-lg text-slate-500 dark:text-slate-400 max-w-2xl mx-auto">
+            Choose how you want to search. We can analyze your resume to find the best matches, or you can browse manually.
+          </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          {/* Manual Entry Card */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.1 }}
-            className={`glass p-8 rounded-3xl cursor-pointer transition-all border-2 ${selectedMethod === 'manual' ? 'border-primary shadow-lg shadow-primary/20' : 'border-transparent hover:border-primary/50'
-              }`}
-            onClick={() => handleCardClick('manual')}
-          >
-            <div className="text-center">
-              <span className="text-6xl mb-4 block">✏️</span>
-              <h3 className="text-xl font-bold mb-2">Enter Skills Manually</h3>
-              <p className="opacity-60 text-sm">
-                Fill out a simple form with your skills, preferred sectors, and internship type preferences
-              </p>
-            </div>
-          </motion.div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
 
-          {/* Upload Resume Card */}
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.2 }}
-            className={`glass p-8 rounded-3xl cursor-pointer transition-all border-2 ${selectedMethod === 'upload' ? 'border-primary shadow-lg shadow-primary/20' : 'border-transparent hover:border-primary/50'
-              }`}
+          {/* Resume Upload Card */}
+          <div
             onClick={() => handleCardClick('upload')}
+            className={`cursor-pointer group relative overflow-hidden bg-white dark:bg-slate-900 p-8 rounded-2xl border transition-all duration-300 ${selectedMethod === 'upload'
+              ? 'border-[#6B629D] ring-2 ring-[#6B629D]/20 shadow-xl'
+              : 'border-slate-200 dark:border-slate-800 hover:border-[#6B629D]/50 hover:shadow-lg'
+              }`}
           >
-            <div className="text-center">
-              <span className="text-6xl mb-4 block">📄</span>
-              <h3 className="text-xl font-bold mb-2">Upload Your Resume</h3>
-              <p className="opacity-60 text-sm">
-                Upload your resume and let our system automatically extract your skills and experience
-              </p>
+            <div className="mb-6 w-16 h-16 bg-[#6B629D]/10 rounded-2xl flex items-center justify-center text-[#6B629D] group-hover:scale-110 transition-transform">
+              <Upload size={32} />
             </div>
-          </motion.div>
+            <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Smart Resume Match</h3>
+            <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">
+              Upload your resume (PDF/DOCX). Our AI will analyze your skills and match you with the most relevant opportunities instantly.
+            </p>
+            {selectedMethod === 'upload' && (
+              <div className="absolute top-4 right-4 text-[#6B629D]"><CheckCircle size={24} /></div>
+            )}
+          </div>
+
+          {/* Manual Entry Card */}
+          <div
+            onClick={() => handleCardClick('manual')}
+            className={`cursor-pointer group relative overflow-hidden bg-white dark:bg-slate-900 p-8 rounded-2xl border transition-all duration-300 ${selectedMethod === 'manual'
+              ? 'border-[#6B629D] ring-2 ring-[#6B629D]/20 shadow-xl'
+              : 'border-slate-200 dark:border-slate-800 hover:border-[#6B629D]/50 hover:shadow-lg'
+              }`}
+          >
+            <div className="mb-6 w-16 h-16 bg-[#949D62]/10 rounded-2xl flex items-center justify-center text-[#949D62] group-hover:scale-110 transition-transform">
+              <SearchX size={32} />
+            </div>
+            <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Browse Manually</h3>
+            <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">
+              Explore all available internships using filters for location, role, and stipend. Best for broad searching.
+            </p>
+            {selectedMethod === 'manual' && (
+              <div className="absolute top-4 right-4 text-[#949D62]"><CheckCircle size={24} /></div>
+            )}
+          </div>
+
         </div>
 
         {/* Submit Button */}
-        <motion.button
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className={`w-full py-4 rounded-xl font-bold text-lg shadow-lg transition-all ${!selectedMethod || loading
-            ? 'bg-gray-500 dark:bg-white/5 text-white cursor-not-allowed'
-            : 'bg-primary text-white hover:scale-[1.02] active:scale-[0.98]'
+        <button
+          className={`w-full py-4 rounded-xl font-bold text-lg shadow-lg transition-all flex items-center justify-center gap-2 ${!selectedMethod || loading
+            ? 'bg-slate-200 dark:bg-slate-800 text-slate-400 cursor-not-allowed'
+            : 'bg-[#6B629D] text-white hover:bg-[#5a5285] hover:shadow-xl'
             }`}
           disabled={!selectedMethod || loading}
           onClick={handleButtonClick}
         >
           {loading ? (
-            <span className="flex items-center justify-center gap-2">
+            <>
               <span className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin"></span>
-              Processing...
-            </span>
+              Analyzing Resume...
+            </>
           ) : (
             selectedMethod === 'manual'
-              ? 'Continue with Manual Entry'
+              ? 'Browse All Internships'
               : selectedMethod === 'upload'
-                ? 'Continue with Resume Upload'
-                : 'Select a method to proceed'
+                ? 'Upload & Find Matches'
+                : 'Select an Option to Continue'
           )}
-        </motion.button>
+        </button>
 
-        {/* Info Card */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="mt-8 glass p-6 rounded-2xl flex items-start gap-4"
-        >
-          <span className="material-symbols-outlined text-primary text-3xl">lightbulb</span>
-          <div>
-            <h3 className="font-bold text-lg mb-1">Need Help Deciding?</h3>
-            <p className="text-sm opacity-70 leading-relaxed">
-              <strong>Manual Entry</strong> gives you full control over your profile. <strong>Resume Upload</strong> automatically extracts your information and provides instant recommendations.
-            </p>
+        {/* Trust Badge */}
+        <div className="mt-12 text-center">
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-900 rounded-full text-xs font-medium text-slate-500 dark:text-slate-400">
+            <Lightbulb size={14} />
+            Trusted by 500+ Top Companies via Ministry of Corporate Affairs
           </div>
-        </motion.div>
+        </div>
+
       </main>
 
       <Footer />
 
       {/* Results Dialog */}
       {openResultsDialog && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
           <motion.div
-            initial={{ scale: 0.9, opacity: 0 }}
+            initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="bg-white dark:bg-[#1a1f2e] w-full max-w-3xl rounded-3xl shadow-2xl max-h-[90vh] flex flex-col overflow-hidden"
+            className="bg-white dark:bg-slate-900 w-full max-w-4xl rounded-2xl shadow-2xl max-h-[85vh] flex flex-col overflow-hidden"
           >
-            <div className="p-6 border-b border-gray-200 dark:border-white/10 flex justify-between items-center">
-              <h2 className="text-2xl font-bold">Recommended Internships</h2>
-              <button onClick={() => setOpenResultsDialog(false)} className="p-2 hover:bg-black/5 dark:hover:bg-white/10 rounded-full">
-                <span className="material-symbols-outlined">close</span>
+            <div className="p-6 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-white dark:bg-slate-900 z-10">
+              <div>
+                <h2 className="text-xl font-bold text-slate-900 dark:text-white">Recommended for You</h2>
+                <p className="text-sm text-slate-500">Based on your resume analysis</p>
+              </div>
+              <button onClick={() => setOpenResultsDialog(false)} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors">
+                <X size={20} />
               </button>
             </div>
 
-            <div className="p-6 overflow-y-auto flex-1 bg-slate-50 dark:bg-black/20">
+            <div className="p-6 overflow-y-auto bg-slate-50 dark:bg-slate-950/50 flex-1">
               {results && results.length > 0 ? (
-                <div>
-                  {results.slice(0, 4).map(renderInternshipCard)}
-
-                  {results.length > 4 && (
-                    <>
-                      <button
-                        className="w-full py-3 mt-4 text-primary font-bold bg-primary/10 rounded-xl hover:bg-primary/20 transition-colors flex items-center justify-center gap-2"
-                        onClick={() => setShowMore(!showMore)}
-                      >
-                        {showMore ? 'Show Less' : `Show ${results.length - 4} More`}
-                        <span className={`material-symbols-outlined transition-transform ${showMore ? 'rotate-180' : ''}`}>expand_more</span>
-                      </button>
-
-                      {showMore && results.slice(4).map(renderInternshipCard)}
-                    </>
-                  )}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {results.slice(0, showMore ? results.length : 4).map(renderInternshipCard)}
                 </div>
               ) : (
-                <div className="text-center py-10 opacity-60">
-                  <span className="material-symbols-outlined text-4xl mb-2">search_off</span>
-                  <p>No internships found</p>
+                <div className="flex flex-col items-center justify-center py-12 text-slate-400">
+                  <SearchX size={48} className="mb-4 opacity-50" />
+                  <p>No matching internships found.</p>
+                </div>
+              )}
+
+              {results.length > 4 && (
+                <div className="mt-6 text-center">
+                  <button
+                    className="px-6 py-2 text-sm font-semibold text-[#6B629D] bg-[#6B629D]/10 rounded-lg hover:bg-[#6B629D]/20 transition-colors inline-flex items-center gap-2"
+                    onClick={() => setShowMore(!showMore)}
+                  >
+                    {showMore ? 'Show Less' : `View ${results.length - 4} More Matches`}
+                    <ChevronDown className={`transition-transform ${showMore ? 'rotate-180' : ''}`} size={16} />
+                  </button>
                 </div>
               )}
             </div>
@@ -510,23 +446,23 @@ function ResumePage() {
 
       {/* Skills Dialog */}
       {openSkillsDialog && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="bg-white dark:bg-[#1a1f2e] w-full max-w-md rounded-3xl shadow-2xl p-6"
+            className="bg-white dark:bg-slate-900 w-full max-w-md rounded-2xl shadow-xl p-6"
           >
-            <h3 className="text-xl font-bold mb-4">Skills</h3>
+            <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">Required Skills</h3>
             <div className="flex flex-wrap gap-2 mb-6">
               {dialogSkills.map((skill, idx) => (
-                <span key={idx} className="px-3 py-1 bg-primary/10 text-primary rounded-full dark:bg-primary/20 text-sm font-medium">
+                <span key={idx} className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded border border-slate-200 dark:border-slate-700 text-sm font-medium">
                   {skill}
                 </span>
               ))}
             </div>
             <div className="flex justify-end">
               <button
-                className="px-4 py-2 bg-gray-100 dark:bg-white/10 rounded-lg font-bold hover:bg-gray-200 dark:hover:bg-white/20 transition-colors"
+                className="px-4 py-2 bg-slate-100 dark:bg-slate-800 rounded-lg font-semibold hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors text-sm"
                 onClick={handleCloseSkillsDialog}
               >
                 Close
@@ -538,35 +474,76 @@ function ResumePage() {
 
       {/* Internship Detail Dialog */}
       {openDetailDialog && selectedInternship && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
           <motion.div
-            initial={{ scale: 0.9, opacity: 0 }}
+            initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="bg-white dark:bg-[#1a1f2e] w-full max-w-xl rounded-3xl shadow-2xl p-8 max-h-[90vh] overflow-y-auto"
+            className="bg-white dark:bg-slate-900 w-full max-w-2xl rounded-2xl shadow-2xl p-0 max-h-[90vh] overflow-y-auto flex flex-col"
           >
-            <div className="flex justify-between items-start mb-6">
-              <h2 className="text-2xl font-bold leading-tight">{selectedInternship.title}</h2>
-              <button onClick={handleCloseDetailDialog} className="p-2 hover:bg-black/5 dark:hover:bg-white/10 rounded-full">
-                <span className="material-symbols-outlined">close</span>
+            <div className="p-6 border-b border-slate-200 dark:border-slate-800 flex justify-between items-start bg-white dark:bg-slate-900 sticky top-0">
+              <div>
+                <h2 className="text-2xl font-bold text-slate-900 dark:text-white leading-tight mb-1">{selectedInternship.title}</h2>
+                <p className="text-[#6B629D] font-semibold">{selectedInternship.companyName}</p>
+              </div>
+              <button onClick={handleCloseDetailDialog} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors">
+                <X size={20} />
               </button>
             </div>
 
-            <div className="space-y-4 text-base opacity-80">
-              <p><strong>Company:</strong> {selectedInternship.companyName || "N/A"}</p>
-              {selectedInternship.locationCity && <p><strong>Location:</strong> {selectedInternship.locationCity}</p>}
-              {selectedInternship.duration && <p><strong>Duration:</strong> {selectedInternship.duration} months</p>}
+            <div className="p-8 space-y-6">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700">
+                  <p className="text-xs text-slate-400 uppercase font-bold mb-1">Location</p>
+                  <p className="font-semibold text-sm">{selectedInternship.locationCity || "Remote"}</p>
+                </div>
+                <div className="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700">
+                  <p className="text-xs text-slate-400 uppercase font-bold mb-1">Duration</p>
+                  <p className="font-semibold text-sm">{selectedInternship.duration} Months</p>
+                </div>
+                <div className="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700">
+                  <p className="text-xs text-slate-400 uppercase font-bold mb-1">Stipend</p>
+                  <p className="font-semibold text-sm text-green-600">{selectedInternship.stipend ? `₹${selectedInternship.stipend}` : "Unpaid"}</p>
+                </div>
+                <div className="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700">
+                  <p className="text-xs text-slate-400 uppercase font-bold mb-1">Type</p>
+                  <p className="font-semibold text-sm">{selectedInternship.type || "Full-time"}</p>
+                </div>
+              </div>
 
-              {/* Add more details here if available in the object */}
-              <div className="bg-primary/5 p-4 rounded-xl mt-4">
-                <p className="text-sm opacity-100">
-                  <strong>Note:</strong> Detailed description functionality would go here.
+              <div>
+                <h3 className="font-bold text-lg mb-3">About the Role</h3>
+                <p className="text-slate-600 dark:text-slate-300 leading-relaxed text-sm">
+                  {selectedInternship.description || "Join our team to work on cutting-edge projects. You will collaborate with senior developers and gain hands-on experience in building scalable applications."}
                 </p>
               </div>
+
+              {selectedInternship.skills && (
+                <div>
+                  <h3 className="font-bold text-lg mb-3">Skills Required</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {selectedInternship.skills.map((s, i) => (
+                      <span key={i} className="px-3 py-1 bg-[#6B629D]/5 text-[#6B629D] rounded-full text-sm font-medium border border-[#6B629D]/10">
+                        {s}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
-            <div className="flex justify-end gap-3 mt-8">
-              <button className="px-5 py-2.5 rounded-xl border border-gray-300 dark:border-white/10 font-bold hover:bg-gray-50 dark:hover:bg-white/5" onClick={handleCloseDetailDialog}>Close</button>
-              <button className="px-5 py-2.5 rounded-xl bg-primary text-white font-bold hover:opacity-90" onClick={() => navigate("/apply")}>Apply Now</button>
+            <div className="p-6 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 flex justify-end gap-3 sticky bottom-0">
+              <button
+                className="px-6 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 font-semibold hover:bg-white dark:hover:bg-slate-800 transition-colors"
+                onClick={handleCloseDetailDialog}
+              >
+                Close
+              </button>
+              <button
+                className="px-6 py-2.5 rounded-lg bg-[#6B629D] text-white font-bold hover:bg-[#5a5285] shadow-lg shadow-[#6B629D]/20 transition-all transform hover:-translate-y-0.5"
+                onClick={() => navigate("/apply")}
+              >
+                Apply Now
+              </button>
             </div>
           </motion.div>
         </div>

@@ -1,67 +1,58 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
-import { motion } from "framer-motion";
+import { LayoutDashboard, Compass, CheckCircle, User, Info, Sun, Moon, Camera, Edit, Mail, FileText, Link, Paperclip, Globe, Save, Award, MapPin, Phone } from "lucide-react";
+import Navbar from "../components/Navbar";
 import AshokChakra from "../assets/Ashoka_Chakra.svg";
 
 // Reusable Footer Component
 const Footer = () => (
-  <footer className="bg-[#0a45a3] text-white pt-8 pb-6 border-t border-white/10 mt-10">
-    <div className="max-w-[1200px] mx-auto px-4">
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+  <footer className="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 pt-12 pb-8 mt-12">
+    <div className="max-w-6xl mx-auto px-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
         <div>
-          <h3 className="font-bold text-lg mb-4 flex items-center">
+          <h3 className="font-semibold text-slate-900 dark:text-white text-lg mb-4 flex items-center gap-2">
             InternFinder
           </h3>
-          <p className="text-white/60 text-sm leading-relaxed mb-4">
-            Bridging the gap between academic learning and industry requirements through quality internship opportunities in India's leading companies.
+          <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed mb-4">
+            Connecting top talent with India's premier authorized internships.
+            <br />
+            <span className="text-xs opacity-70">An initiative by the Ministry of Corporate Affairs.</span>
           </p>
-          <p className="text-white/60 text-xs">Ministry of Corporate Affairs</p>
         </div>
         <div>
-          <h3 className="font-bold text-lg mb-4">Quick Links</h3>
-          <ul className="space-y-2 text-sm text-white/60">
-            <li><a href="#" className="hover:text-white transition-colors">Guidelines & Instructions</a></li>
-            <li><a href="#" className="hover:text-white transition-colors">Eligibility Criteria</a></li>
-            <li><a href="#" className="hover:text-white transition-colors">Application Process</a></li>
-            <li><a href="#" className="hover:text-white transition-colors">Frequently Asked Questions</a></li>
+          <h3 className="font-semibold text-slate-900 dark:text-white text-sm mb-4 uppercase tracking-wider">Platform</h3>
+          <ul className="space-y-3 text-sm text-slate-500 dark:text-slate-400">
+            <li><a href="#" className="hover:text-[#6B629D] transition-colors">Browse Internships</a></li>
+            <li><a href="#" className="hover:text-[#6B629D] transition-colors">Eligibility Check</a></li>
+            <li><a href="#" className="hover:text-[#6B629D] transition-colors">Application Status</a></li>
+            <li><a href="#" className="hover:text-[#6B629D] transition-colors">Help Center</a></li>
           </ul>
         </div>
         <div>
-          <h3 className="font-bold text-lg mb-4">Support</h3>
-          <ul className="space-y-3 text-sm text-white/60">
-            <li className="flex items-start gap-2">
-              <span className="material-symbols-outlined text-sm mt-0.5">mail</span>
+          <h3 className="font-semibold text-slate-900 dark:text-white text-sm mb-4 uppercase tracking-wider">Contact</h3>
+          <ul className="space-y-3 text-sm text-slate-500 dark:text-slate-400">
+            <li className="flex items-center gap-2">
+              <Mail size={14} />
               support@internfinder.gov.in
             </li>
-            <li className="flex items-start gap-2">
-              <span className="material-symbols-outlined text-sm mt-0.5">call</span>
-              1800-123-456 (Toll Free)
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="material-symbols-outlined text-sm mt-0.5">location_on</span>
-              Shastri Bhawan, New Delhi - 110001
+            <li className="flex items-center gap-2">
+              <Phone size={14} />
+              1800-123-456
             </li>
           </ul>
         </div>
         <div>
-          <h3 className="font-bold text-lg mb-4">Government Links</h3>
-          <ul className="space-y-2 text-sm text-white/60">
-            <li><a href="https://www.india.gov.in" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">India.gov.in</a></li>
-            <li><a href="https://www.mca.gov.in" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Ministry of Corporate Affairs</a></li>
-            <li><a href="https://digitalindia.gov.in" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Digital India</a></li>
-            <li><a href="https://www.mygov.in" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">MyGov.in</a></li>
+          <h3 className="font-semibold text-slate-900 dark:text-white text-sm mb-4 uppercase tracking-wider">Legal</h3>
+          <ul className="space-y-3 text-sm text-slate-500 dark:text-slate-400">
+            <li><a href="#" className="hover:text-[#6B629D] transition-colors">Privacy Policy</a></li>
+            <li><a href="#" className="hover:text-[#6B629D] transition-colors">Terms of Use</a></li>
+            <li><a href="#" className="hover:text-[#6B629D] transition-colors">Government Compliance</a></li>
           </ul>
         </div>
       </div>
-      <div className="border-t border-white/10 pt-6 flex flex-col md:flex-row items-center justify-between text-xs text-white/40">
-        <p>© 2025 InternFinder. All rights reserved.</p>
-        <div className="flex gap-6 mt-4 md:mt-0">
-          <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
-          <a href="#" className="hover:text-white transition-colors">Terms of Service</a>
-          <a href="#" className="hover:text-white transition-colors">Accessibility</a>
-          <a href="#" className="hover:text-white transition-colors">Sitemap</a>
-        </div>
+      <div className="border-t border-slate-200 dark:border-slate-800 pt-8 flex flex-col md:flex-row items-center justify-between text-xs text-slate-400">
+        <p>&copy; 2025 InternFinder. Government of India.</p>
       </div>
     </div>
   </footer>
@@ -75,9 +66,9 @@ export default function ProfilePage() {
   const storedUser = JSON.parse(localStorage.getItem("user"));
   const [user, setUser] = useState(
     storedUser || {
-      name: "John Doe",
-      email: "john.doe@example.com",
-      bio: "Full-stack developer passionate about AI and clean UI design.",
+      name: "Viraj Gupta",
+      email: "viraj.gupta@example.com",
+      bio: "Aspiring Full Stack Developer with a passion for building scalable web applications. Currently learning React and Node.js.",
       photo: null,
       resumeLink: "",
       portfolioLink: ""
@@ -113,7 +104,7 @@ export default function ProfilePage() {
 
   const handleSave = () => {
     localStorage.setItem("user", JSON.stringify(user));
-    toast.success("Profile updated successfully! ✅");
+    toast.success("Profile updated successfully! \u2705");
   };
 
   const handleLogout = () => {
@@ -135,202 +126,174 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="bg-background-light dark:bg-background-dark font-display text-[#130d1c] dark:text-white transition-colors duration-300 min-h-screen flex flex-col relative overflow-x-hidden">
-
-      {/* Background Effects */}
-      <div className="fixed inset-0 z-0 gradient-bg">
-        <div className="absolute inset-0 opacity-20 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '40px 40px' }}></div>
-      </div>
+    <div className="bg-slate-50 dark:bg-[#0B1120] min-h-screen font-sans text-slate-900 dark:text-slate-100 transition-colors duration-300">
 
       {/* Navbar */}
-      <div className="fixed top-0 left-0 right-0 z-50 px-4 py-4">
-        <header className="max-w-[1200px] mx-auto glass rounded-full px-6 py-3 flex items-center justify-between shadow-lg border border-white/20 dark:border-white/10">
-          <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/')}>
-            <div className="size-8 text-white bg-primary rounded-lg flex items-center justify-center p-1.5 shadow-lg shadow-primary/30">
-              <img src={AshokChakra} alt="Ashok Stambh" className="w-full h-full" style={{ filter: "invert(100%)" }} />
-            </div>
-            <h2 className="text-lg font-bold tracking-tight">InternFinder</h2>
+      <Navbar />
+
+      <main className="max-w-5xl mx-auto px-6 py-10">
+
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
+          <div>
+            <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">My Profile</h1>
+            <p className="text-slate-500 dark:text-slate-400">Manage your personal information and resume settings.</p>
           </div>
+          <button onClick={handleLogout} className="text-red-600 hover:bg-red-50 dark:hover:bg-red-900/10 px-4 py-2 rounded-lg text-sm font-semibold transition-colors border border-red-200 dark:border-red-900/30">
+            Sign Out
+          </button>
+        </div>
 
-          <nav className="hidden md:flex items-center gap-1">
-            {[
-              { label: "Dashboard", path: "/home", icon: "dashboard" },
-              { label: "Internships", path: "/resume", icon: "travel_explore" },
-              { label: "Applied", path: "/saved", icon: "assignment_turned_in" },
-              { label: "Profile", path: "/profile", icon: "person" },
-              { label: "About", path: "/about", icon: "info" },
-            ].map((item) => (
-              <button
-                key={item.label}
-                onClick={() => navigate(item.path)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all ${item.path === "/profile"
-                  ? "bg-primary text-white shadow-lg shadow-primary/25"
-                  : "hover:bg-black/5 dark:hover:bg-white/10"
-                  }`}
-              >
-                <span className="material-symbols-outlined text-[18px]">{item.icon}</span>
-                {item.label}
-              </button>
-            ))}
-          </nav>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
-          <div className="flex items-center gap-2">
-            <button className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors" onClick={toggleDarkMode}>
-              <span className="material-symbols-outlined text-[20px]">{isDarkMode ? 'light_mode' : 'dark_mode'}</span>
-            </button>
-            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-orange-400 to-red-500 flex items-center justify-center text-white font-bold text-sm">
-              {user.name && user.name.charAt(0)}
-            </div>
-          </div>
-        </header>
-      </div>
-
-      {/* Main Content */}
-      <main className="relative z-10 pt-24 pb-6 px-4 container mx-auto max-w-[1000px]">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="glass rounded-3xl p-8 md:p-12 relative overflow-hidden"
-        >
-
-          <div className="relative z-10 flex flex-col md:flex-row items-start gap-8 mt-4">
-            {/* Left Side: Avatar & Stats */}
-            <div className="flex flex-col items-center gap-4 w-full md:w-auto">
-              <div className="relative group">
-                <div className="w-40 h-40 rounded-full border-4 border-white dark:border-slate-800 shadow-2xl overflow-hidden bg-white">
+          {/* Left Column: Avatar & Quick Stats */}
+          <div className="space-y-6">
+            <div className="bg-white dark:bg-slate-900 p-8 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col items-center text-center">
+              <div className="relative group mb-6">
+                <div className="w-32 h-32 rounded-full border-4 border-slate-100 dark:border-slate-800 overflow-hidden bg-slate-100">
                   {user.photo ? (
                     <img src={user.photo} alt="Profile" className="w-full h-full object-cover" />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-slate-100 text-slate-300">
-                      <span className="material-symbols-outlined text-6xl">person</span>
+                    <div className="w-full h-full flex items-center justify-center bg-slate-200 text-slate-400">
+                      <User size={48} />
                     </div>
                   )}
                 </div>
-                <label className="absolute bottom-2 right-2 p-2 bg-primary text-white rounded-full cursor-pointer shadow-lg hover:bg-blue-700 transition-colors">
-                  <span className="material-symbols-outlined text-xl">photo_camera</span>
+                <label className="absolute bottom-0 right-0 p-2.5 bg-[#6B629D] text-white rounded-full cursor-pointer shadow-lg hover:bg-[#5a5285] transition-colors">
+                  <Camera size={16} />
                   <input type="file" accept="image/*" hidden onChange={handlePhotoChange} />
                 </label>
               </div>
 
-              <div className="w-full text-center">
-                <h2 className="text-2xl font-black">{user.name}</h2>
-                <p className="text-slate-500 dark:text-slate-400 text-sm">Intern / Student</p>
-              </div>
+              <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-1">{user.name}</h2>
+              <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">Student / Intern</p>
 
-              <div className="w-full grid grid-cols-2 gap-4 mt-2">
-                <div className="p-4 bg-white/50 dark:bg-black/20 rounded-2xl text-center border border-white/20">
-                  <span className="block text-2xl font-bold">85%</span>
-                  <span className="text-xs uppercase opacity-60 font-bold">Profile</span>
+              <div className="w-full grid grid-cols-2 gap-3">
+                <div className="p-3 bg-slate-50 dark:bg-slate-800 rounded-lg">
+                  <span className="block text-xl font-bold text-[#6B629D]">85%</span>
+                  <span className="text-xs uppercase text-slate-500 font-semibold tracking-wider">Score</span>
                 </div>
-                <div className="p-4 bg-white/50 dark:bg-black/20 rounded-2xl text-center border border-white/20">
-                  <span className="block text-2xl font-bold">12</span>
-                  <span className="text-xs uppercase opacity-60 font-bold">Applied</span>
+                <div className="p-3 bg-slate-50 dark:bg-slate-800 rounded-lg">
+                  <span className="block text-xl font-bold text-[#949D62]">12</span>
+                  <span className="text-xs uppercase text-slate-500 font-semibold tracking-wider">Applied</span>
                 </div>
               </div>
             </div>
 
-            {/* Right Side: Form */}
-            <div className="flex-1 w-full space-y-6">
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="text-xl font-bold flex items-center gap-2">
-                  <span className="material-symbols-outlined text-primary">edit_square</span>
-                  Edit Profile
-                </h3>
-                <button onClick={handleLogout} className="text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 px-4 py-2 rounded-full text-sm font-bold transition-colors">
-                  Logout
-                </button>
+            {/* Recent Activity Mini-Card (Optional) */}
+            <div className="bg-gradient-to-br from-[#6B629D] to-[#5a5285] p-6 rounded-xl shadow-lg shadow-[#6B629D]/20 text-white">
+              <h3 className="font-bold text-lg mb-2 flex items-center gap-2">
+                <Award size={20} />
+                Pro Tip
+              </h3>
+              <p className="text-blue-100 text-sm leading-relaxed">
+                Complete your bio and add a portfolio link to boost your profile visibility by 2x.
+              </p>
+            </div>
+          </div>
+
+          {/* Right Column: Edit Form */}
+          <div className="lg:col-span-2 space-y-8">
+
+            <div className="bg-white dark:bg-slate-900 p-8 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+              <h3 className="text-lg font-bold mb-6 flex items-center gap-2 border-b border-slate-100 dark:border-slate-800 pb-4">
+                <Edit size={18} className="text-[#6B629D]" />
+                Personal Information
+              </h3>
+
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Full Name</label>
+                    <div className="relative">
+                      <span className="absolute left-3 top-3 text-slate-400"><User size={18} /></span>
+                      <input
+                        type="text"
+                        value={user.name}
+                        onChange={(e) => setUser({ ...user, name: e.target.value })}
+                        className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg py-2.5 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-[#6B629D]/50 transition-all"
+                        placeholder="Enter your name"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Email Address</label>
+                    <div className="relative">
+                      <span className="absolute left-3 top-3 text-slate-400"><Mail size={18} /></span>
+                      <input
+                        type="email"
+                        value={user.email}
+                        onChange={(e) => setUser({ ...user, email: e.target.value })}
+                        className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg py-2.5 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-[#6B629D]/50 transition-all"
+                        placeholder="Enter your email"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Bio</label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-3 text-slate-400"><FileText size={18} /></span>
+                    <textarea
+                      value={user.bio}
+                      onChange={(e) => setUser({ ...user, bio: e.target.value })}
+                      className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg py-2.5 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-[#6B629D]/50 transition-all min-h-[100px]"
+                      placeholder="Tell us about yourself..."
+                    />
+                  </div>
+                </div>
               </div>
+            </div>
+
+            <div className="bg-white dark:bg-slate-900 p-8 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+              <h3 className="text-lg font-bold mb-6 flex items-center gap-2 border-b border-slate-100 dark:border-slate-800 pb-4">
+                <Link size={18} className="text-[#6B629D]" />
+                Professional Links
+              </h3>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <label className="text-sm font-bold opacity-70">Full Name</label>
+                  <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Resume / CV Link</label>
                   <div className="relative">
-                    <span className="material-symbols-outlined absolute left-3 top-3.5 opacity-40">person</span>
+                    <span className="absolute left-3 top-3 text-slate-400"><Paperclip size={18} /></span>
                     <input
-                      type="text"
-                      value={user.name}
-                      onChange={(e) => setUser({ ...user, name: e.target.value })}
-                      className="w-full bg-white/50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl py-3 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all font-medium"
-                      placeholder="Enter your name"
+                      type="url"
+                      value={user.resumeLink || ""}
+                      onChange={(e) => setUser({ ...user, resumeLink: e.target.value })}
+                      className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg py-2.5 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-[#6B629D]/50 transition-all"
+                      placeholder="Google Drive, Dropbox..."
                     />
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-bold opacity-70">Email Address</label>
+                  <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Portfolio Link</label>
                   <div className="relative">
-                    <span className="material-symbols-outlined absolute left-3 top-3.5 opacity-40">mail</span>
+                    <span className="absolute left-3 top-3 text-slate-400"><Globe size={18} /></span>
                     <input
-                      type="email"
-                      value={user.email}
-                      onChange={(e) => setUser({ ...user, email: e.target.value })}
-                      className="w-full bg-white/50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl py-3 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all font-medium"
-                      placeholder="Enter your email"
+                      type="url"
+                      value={user.portfolioLink || ""}
+                      onChange={(e) => setUser({ ...user, portfolioLink: e.target.value })}
+                      className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg py-2.5 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-[#6B629D]/50 transition-all"
+                      placeholder="GitHub, Website..."
                     />
                   </div>
                 </div>
               </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-bold opacity-70">Bio</label>
-                <div className="relative">
-                  <span className="material-symbols-outlined absolute left-3 top-3.5 opacity-40">description</span>
-                  <textarea
-                    value={user.bio}
-                    onChange={(e) => setUser({ ...user, bio: e.target.value })}
-                    className="w-full bg-white/50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl py-3 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all font-medium min-h-[100px]"
-                    placeholder="Tell us about yourself..."
-                  />
-                </div>
-              </div>
-
-              {/* NEW SECTION: Resume & Portfolio */}
-              <div className="pt-4 border-t border-slate-200 dark:border-white/10">
-                <h4 className="text-lg font-bold mb-4 flex items-center gap-2">
-                  <span className="material-symbols-outlined text-primary">link</span>
-                  Professional Links
-                </h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label className="text-sm font-bold opacity-70">Resume / CV Link</label>
-                    <div className="relative">
-                      <span className="material-symbols-outlined absolute left-3 top-3.5 opacity-40">attach_file</span>
-                      <input
-                        type="url"
-                        value={user.resumeLink || ""}
-                        onChange={(e) => setUser({ ...user, resumeLink: e.target.value })}
-                        className="w-full bg-white/50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl py-3 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all font-medium"
-                        placeholder="Google Drive, LinkedIn..."
-                      />
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-bold opacity-70">Portfolio Link</label>
-                    <div className="relative">
-                      <span className="material-symbols-outlined absolute left-3 top-3.5 opacity-40">language</span>
-                      <input
-                        type="url"
-                        value={user.portfolioLink || ""}
-                        onChange={(e) => setUser({ ...user, portfolioLink: e.target.value })}
-                        className="w-full bg-white/50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl py-3 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all font-medium"
-                        placeholder="GitHub, Personal Web..."
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="pt-6">
-                <button
-                  onClick={handleSave}
-                  className="w-full bg-primary text-white font-bold py-4 rounded-xl shadow-lg hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
-                >
-                  <span className="material-symbols-outlined">save</span>
-                  Save Changes
-                </button>
-              </div>
             </div>
+
+            <div className="flex justify-end pt-4">
+              <button
+                onClick={handleSave}
+                className="bg-[#6B629D] hover:bg-[#5a5285] text-white px-8 py-3 rounded-lg font-bold shadow-md shadow-[#6B629D]/20 hover:shadow-lg transition-all flex items-center gap-2"
+              >
+                <Save size={18} />
+                Save Profile
+              </button>
+            </div>
+
           </div>
-        </motion.div>
+        </div>
+
       </main>
 
       <Footer />
