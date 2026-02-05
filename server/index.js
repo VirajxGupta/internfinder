@@ -31,6 +31,7 @@ app.get("/api/user", protect, (req, res) => {
   });
 });
 
+
 // API Routes
 app.use("/api/auth", authRoutes);
 
