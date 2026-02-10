@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import LoginPage from "./pages/LoginPage.jsx";
 import Signup from "./pages/Sign-up.jsx";
@@ -15,6 +15,14 @@ import HomePage from "./pages/HomePage.jsx"
 import ResumePage from "./pages/ResumePage.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 
+
+// Helper component to conditionally render Chatbot
+function ChatbotWrapper() {
+  const location = useLocation();
+  // Hide chatbot on homepage
+  if (location.pathname === "/") return null;
+  return <Chatbot />;
+}
 
 function App() {
   return (
@@ -50,7 +58,7 @@ function App() {
         />
       </Routes>{" "}
       {/* The Chatbot component is correctly placed here, outside the Routes, so it is visible across all pages that match a route. */}{" "}
-      < Chatbot />
+      < ChatbotWrapper />
     </Router>
   );
 }
