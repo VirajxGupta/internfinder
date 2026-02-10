@@ -88,6 +88,45 @@ export const googleLogin = async (req, res) => {
   }
 };
 
+// GITHUB LOGIN
+export const githubLogin = async (req, res) => {
+  const { token } = req.body;
+
+  try {
+    const decodedToken = await auth.verifyIdToken(token);
+    const { name, email, picture, uid, firebase } = decodedToken;
+
+    // GitHub often provides different data structure, or no email if private
+    // But Firebase Auth normalizes it a bit. However, email might be null if user keeps it private.
+
+    // If email is missing, we can't easily link to existing account or rely on email as unique identifier for our DB
+    // For now, we'll assume email exists or fail gracefully
+    if (!email) {
+      return res.status(400).json({ message: "GitHub account must have a public email address to sign up." });
+    }
+
+    // Check if user exists
+    let user = await getUserByEmail(email);
+
+    if (!user) {
+      const randomPassword = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8);
+      const hashedPassword = await bcrypt.hash(randomPassword, 10);
+
+      user = await createUser({
+        name: name || "GitHub User",
+        email,
+        password: hashedPassword,
+        photo: picture
+      });
+    }
+
+    res.status(200).json({ user, message: "GitHub Login successful \u2705" });
+  } catch (error) {
+    console.error("GitHub Auth Error:", error);
+    res.status(401).json({ message: "Invalid GitHub Token \u274C" });
+  }
+};
+
 // LOGOUT
 export const logout = async (req, res) => {
   try {
