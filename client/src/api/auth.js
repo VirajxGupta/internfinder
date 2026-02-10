@@ -1,5 +1,5 @@
 // src/api/auth.js
-const API_URL = "http://localhost:5000/api/auth";
+const API_URL = `${import.meta.env.VITE_BACKEND_URL}/api/auth`;
 
 export const register = async (userData) => {
   const res = await fetch(`${API_URL}/register`, {
