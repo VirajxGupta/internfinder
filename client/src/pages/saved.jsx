@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import { motion } from "framer-motion";
-import { LayoutDashboard, Compass, CheckCircle, User, Info, Sun, Moon, Briefcase, MapPin, Shapes, X, Calendar, IndianRupee, Mail, Phone, Clock, Building2 } from "lucide-react";
+import { LayoutDashboard, Compass, CheckCircle, User, Info, Sun, Moon, Briefcase, MapPin, Shapes, X, Calendar, IndianRupee, Mail, Phone, Clock, Building2, Bookmark } from "lucide-react";
 import Navbar from "../components/Navbar";
 import AshokChakra from "../assets/Ashoka_Chakra.svg";
 
@@ -66,47 +66,9 @@ export default function SavedInternships() {
   const [selectedInternship, setSelectedInternship] = useState(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  // Mock Data
-  const savedInternships = [
-    {
-      id: 1,
-      title: "Frontend Developer Intern",
-      company: "TechVision Pvt. Ltd.",
-      location: "Remote",
-      sector: "Technology",
-      duration: "3 Months",
-      stipend: "₹10,000/month",
-      postedOn: "Sept 5, 2025",
-      description:
-        "We are looking for a passionate Frontend Developer Intern to join our tech team. You will work on building modern, responsive web applications using React, JavaScript, and Material-UI.",
-      skills: ["React", "JavaScript", "UI/UX", "Git", "Teamwork"],
-      responsibilities: [
-        "Develop UI components using React & MUI",
-        "Collaborate with backend developers",
-        "Fix bugs and optimize performance",
-      ],
-      status: "Applied"
-    },
-    {
-      id: 2,
-      title: "Digital Marketing Intern",
-      company: "Growthify Marketing",
-      location: "Hybrid",
-      sector: "Marketing",
-      duration: "2 Months",
-      stipend: "₹8,000/month",
-      postedOn: "Sept 3, 2025",
-      description:
-        "Join our marketing team to learn SEO, social media management, and ad campaigns. Work on real projects and boost your portfolio.",
-      skills: ["SEO", "Social Media", "Content Writing"],
-      responsibilities: [
-        "Manage social media accounts",
-        "Assist in running ad campaigns",
-        "Write engaging content",
-      ],
-      status: "In Review"
-    },
-  ];
+  // Mock Data (Fallback)
+  const [savedInternships, setSavedInternships] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     // Dark Mode Logic
@@ -120,7 +82,40 @@ export default function SavedInternships() {
     // Load User
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
-      setUser(JSON.parse(storedUser));
+      const parsedUser = JSON.parse(storedUser);
+      setUser(parsedUser);
+
+      // Fetch Applications
+      if (parsedUser.id) {
+        setLoading(true);
+        fetch(`http://localhost:5000/api/applications/${parsedUser.id}`)
+          .then(res => res.json())
+          .then(data => {
+            // Transform data to match UI
+            const formattedData = data.map(app => ({
+              id: app.id,
+              title: app.title,
+              company: app.company,
+              location: app.location || "Remote",
+              sector: "Technology", // Default for now
+              duration: "3 Months", // Default
+              stipend: app.stipend || "Unpaid",
+              postedOn: new Date(app.appliedOn).toLocaleDateString(),
+              description: "Application submitted.",
+              skills: ["React", "JavaScript"], // Default
+              responsibilities: [],
+              status: app.status
+            }));
+            setSavedInternships(formattedData);
+          })
+          .catch(err => {
+            console.error("Failed to fetch applications", err);
+            toast.error("Failed to load applications.");
+          })
+          .finally(() => setLoading(false));
+      } else {
+        setLoading(false);
+      }
     }
   }, []);
 
@@ -146,6 +141,40 @@ export default function SavedInternships() {
     setIsDialogOpen(false);
   };
 
+  const handleToggleSave = async (e, internship) => {
+    e.stopPropagation();
+
+    // logic: If status is 'Saved', we unsave. If we want to allow re-saving, we can.
+    // Based on the page being "Saved Internships", items here are primarily 'Saved' or 'Applied'.
+    // If 'Applied', we probably shouldn't be able to 'unsave' the application via a bookmark button (that's withdrawing).
+    // So this button should only appear or be active for 'Saved' status items.
+
+    if (internship.status === 'Applied') return;
+
+    if (internship.status === 'Saved') {
+      // Unsave
+      try {
+        await fetch("http://localhost:5000/api/applications/unsave", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId: user.id, internshipId: internship.id })
+        });
+
+        toast.success("Internship removed from saved.");
+        // Update local state to remove it or change status
+        // For "Saved" page, removing it from the list makes sense, or changing visual state.
+        // Let's remove it from the list for immediate feedback.
+        setSavedInternships(prev => prev.filter(item => item.id !== internship.id));
+      } catch (err) {
+        console.error("Failed to unsave", err);
+        toast.error("Failed to unsave.");
+      }
+    } else {
+      // If we ever support re-saving here (e.g. if we kept it in the list but marked as unsaved)
+      // For now, easier to just remove it.
+    }
+  };
+
   return (
     <div className="bg-slate-50 dark:bg-[#0B1120] min-h-screen font-sans text-slate-900 dark:text-slate-100 transition-colors duration-300">
 
@@ -168,57 +197,74 @@ export default function SavedInternships() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {savedInternships.map((internship) => (
-            <div key={internship.id} className="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow group">
+          {loading ? (
+            <p className="text-slate-500">Loading applications...</p>
+          ) : savedInternships.length > 0 ? (
+            savedInternships.map((internship) => (
+              <div key={internship.id} className="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow group">
 
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-lg font-bold text-slate-500 dark:text-slate-400 group-hover:text-[#6B629D] group-hover:bg-[#6B629D]/10 transition-colors">
-                    {internship.company.charAt(0)}
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-lg font-bold text-slate-500 dark:text-slate-400 group-hover:text-[#6B629D] group-hover:bg-[#6B629D]/10 transition-colors">
+                      {internship.company.charAt(0)}
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-slate-900 dark:text-white leading-tight">{internship.title}</h3>
+                      <p className="text-sm text-slate-500 dark:text-slate-400">{internship.company}</p>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="font-bold text-slate-900 dark:text-white leading-tight">{internship.title}</h3>
-                    <p className="text-sm text-slate-500 dark:text-slate-400">{internship.company}</p>
-                  </div>
-                </div>
-                <span className={`text-xs px-2 py-1 rounded font-bold ${internship.status === 'Applied'
-                  ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
-                  : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
-                  }`}>
-                  {internship.status}
-                </span>
-              </div>
-
-              <div className="space-y-3 mb-6">
-                <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
-                  <MapPin size={16} className="text-slate-400" />
-                  {internship.location}
-                </div>
-                <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
-                  <Building2 size={16} className="text-slate-400" />
-                  {internship.sector}
-                </div>
-                <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
-                  <IndianRupee size={16} className="text-slate-400" />
-                  {internship.stipend}
-                </div>
-                <div className="flex flex-wrap gap-2 mt-3 pt-3 border-t border-slate-100 dark:border-slate-800">
-                  {internship.skills.slice(0, 3).map((skill, i) => (
-                    <span key={i} className="px-2 py-1 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs rounded border border-slate-200 dark:border-slate-700">
-                      {skill}
+                  <div className="flex items-start gap-3">
+                    <span className={`text-xs px-2 py-1 rounded font-bold ${internship.status === 'Applied'
+                      ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
+                      : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
+                      }`}>
+                      {internship.status}
                     </span>
-                  ))}
+                    {internship.status === 'Saved' && (
+                      <button
+                        onClick={(e) => handleToggleSave(e, internship)}
+                        className="p-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-[#949D62] transition-colors"
+                        title="Unsave Internship"
+                      >
+                        <Bookmark size={18} className="fill-[#949D62]" />
+                      </button>
+                    )}
+                  </div>
                 </div>
-              </div>
 
-              <button
-                className="w-full py-2.5 rounded-lg border border-[#6B629D] text-[#6B629D] font-bold hover:bg-[#6B629D] hover:text-white transition-all text-sm"
-                onClick={() => handleOpen(internship)}
-              >
-                View Application Details
-              </button>
-            </div>
-          ))}
+                <div className="space-y-3 mb-6">
+                  <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
+                    <MapPin size={16} className="text-slate-400" />
+                    {internship.location}
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
+                    <Building2 size={16} className="text-slate-400" />
+                    {internship.sector}
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
+                    <IndianRupee size={16} className="text-slate-400" />
+                    {internship.stipend}
+                  </div>
+                  <div className="flex flex-wrap gap-2 mt-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+                    {internship.skills.slice(0, 3).map((skill, i) => (
+                      <span key={i} className="px-2 py-1 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs rounded border border-slate-200 dark:border-slate-700">
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                <button
+                  className="w-full py-2.5 rounded-lg border border-[#6B629D] text-[#6B629D] font-bold hover:bg-[#6B629D] hover:text-white transition-all text-sm"
+                  onClick={() => handleOpen(internship)}
+                >
+                  View Application Details
+                </button>
+              </div>
+            ))
+          ) : (
+            <p className="text-slate-500">No applications found. Go to Explore to apply!</p>
+          )}
         </div>
 
       </main>

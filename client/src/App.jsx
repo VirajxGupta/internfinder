@@ -14,6 +14,8 @@ import Chatbot from "./pages/chatbot.jsx";
 import HomePage from "./pages/HomePage.jsx"
 import ResumePage from "./pages/ResumePage.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
+import ErrorBoundary from "./components/ErrorBoundary.jsx";
+import { AuthProvider } from "./context/AuthContext.jsx";
 
 
 // Helper component to conditionally render Chatbot
@@ -26,40 +28,43 @@ function ChatbotWrapper() {
 
 function App() {
   return (
-    <Router>
-      {" "}
-      <Toaster position="top-center" reverseOrder={false} />{" "}
-      <Routes>
+    <AuthProvider>
+      <Router>
         {" "}
-        {/* Public Routes */}
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/" element={<HomePage />} />
+        <Toaster position="top-center" reverseOrder={false} />{" "}
+        <ErrorBoundary>
+          <Routes>
+            {/* Public Routes */}
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/signup" element={<Signup />} />
+            <Route path="/" element={<HomePage />} />
 
-        {/* Protected Routes */}
-        <Route element={<ProtectedRoute />}>
-          <Route path="/home" element={<DashBoard />} />
-          <Route path="/resume" element={<ResumePage />} />
-          <Route path="/explore" element={<Explore />} />
-          <Route path="/saved" element={<SavedInternships />} />
-          <Route path="/apply" element={<ApplyPage />} />
-          <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/about" element={<About />} />
-        </Route>
+            {/* Protected Routes */}
+            <Route element={<ProtectedRoute />}>
+              <Route path="/home" element={<DashBoard />} />
+              <Route path="/resume" element={<ResumePage />} />
+              <Route path="/explore" element={<Explore />} />
+              <Route path="/saved" element={<SavedInternships />} />
+              <Route path="/apply" element={<ApplyPage />} />
+              <Route path="/profile" element={<ProfilePage />} />
+              <Route path="/about" element={<About />} />
+            </Route>
 
-        {/* Fallback route */}
-        <Route
-          path="*"
-          element={
-            <h2 style={{ textAlign: "center", marginTop: "2rem" }}>
-              404 – Page Not Found
-            </h2>
-          }
-        />
-      </Routes>{" "}
-      {/* The Chatbot component is correctly placed here, outside the Routes, so it is visible across all pages that match a route. */}{" "}
-      < ChatbotWrapper />
-    </Router>
+            {/* Fallback route */}
+            <Route
+              path="*"
+              element={
+                <h2 style={{ textAlign: "center", marginTop: "2rem" }}>
+                  404 – Page Not Found
+                </h2>
+              }
+            />
+          </Routes>
+        </ErrorBoundary>
+        {/* The Chatbot component is correctly placed here, outside the Routes, so it is visible across all pages that match a route. */}{" "}
+        < ChatbotWrapper />
+      </Router>
+    </AuthProvider>
   );
 }
 export default App;

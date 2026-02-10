@@ -45,7 +45,10 @@ export const login = async (req, res) => {
       return res.status(401).json({ message: "Invalid credentials ❌" });
     }
 
-    res.status(200).json({ user, message: "Login successful ✅" });
+    // Generate Firebase Custom Token
+    const token = await auth.createCustomToken(user.id);
+
+    res.status(200).json({ user, token, message: "Login successful ✅" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

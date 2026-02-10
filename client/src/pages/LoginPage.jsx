@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import { Lock, Mail, LogIn, Sun, Moon, ArrowRight, CheckCircle, Shield } from "lucide-react";
-import { GoogleAuthProvider, GithubAuthProvider, signInWithPopup } from "firebase/auth";
+import { GoogleAuthProvider, GithubAuthProvider, signInWithPopup, signInWithCustomToken } from "firebase/auth";
 import { auth } from "../firebase";
 
 export default function LoginPage() {
@@ -107,6 +107,9 @@ export default function LoginPage() {
       const data = await res.json();
 
       if (res.ok) {
+        if (data.token) {
+          await signInWithCustomToken(auth, data.token);
+        }
         localStorage.setItem("user", JSON.stringify(data.user));
         toast.success("Welcome back! Login successful. \u2705"); // \u2705 is checkmark
         navigate("/home");

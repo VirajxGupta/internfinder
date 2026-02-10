@@ -1,14 +1,20 @@
 import React from "react";
 import { Navigate, Outlet } from "react-router-dom";
-import { toast } from "react-hot-toast";
+import { useAuth } from "../context/AuthContext";
 
 const ProtectedRoute = () => {
-    const storedUser = localStorage.getItem("user");
-    const isAuthenticated = !!storedUser;
+    const { user, loading } = useAuth();
 
-    if (!isAuthenticated) {
-        // Optionally show a toast, though sometimes it can trigger multiple times if not handled carefully
-        // We'll stick to redirect for now.
+    if (loading) {
+        // You can replace this with a proper loading spinner component
+        return (
+            <div className="flex items-center justify-center min-h-screen bg-slate-50 dark:bg-slate-900">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#6B629D]"></div>
+            </div>
+        );
+    }
+
+    if (!user) {
         return <Navigate to="/login" replace />;
     }
 

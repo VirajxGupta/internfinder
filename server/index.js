@@ -3,6 +3,7 @@ import cors from "cors";
 import { db, rtdb } from "./firebaseAdmin.js";
 import { register, login, logout } from "./controllers/usercontroller.js";
 import authRoutes from "./routes/userroutes.js";
+import applicationRoutes from "./routes/applicationRoutes.js";
 import { protect } from "./middleware/authmiddleware.js";
 import dotenv from "dotenv";
 import path from "path";
@@ -34,6 +35,7 @@ app.get("/api/user", protect, (req, res) => {
 
 // API Routes
 app.use("/api/auth", authRoutes);
+app.use("/api/applications", applicationRoutes);
 
 app.post("/api/register", register);
 app.post("/api/login", login);

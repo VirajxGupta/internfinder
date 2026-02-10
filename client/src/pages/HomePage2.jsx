@@ -62,6 +62,8 @@ export default function Dashboard() {
     const navigate = useNavigate();
     const [isDarkMode, setIsDarkMode] = useState(false);
     const [user, setUser] = useState({ name: "User", email: "" });
+    const [appliedInternships, setAppliedInternships] = useState([]);
+    const [savedInternshipIds, setSavedInternshipIds] = useState([]);
 
     // Extended mock data for internships
     const recommendedInternships = [
@@ -70,6 +72,13 @@ export default function Dashboard() {
         { id: 3, title: "UX Research Intern", company: "Adobe Systems", location: "Noida", stipend: "₹40,000/mo", type: "Hybrid" },
         { id: 4, title: "Data Science Intern", company: "Amazon Development", location: "Bangalore", stipend: "₹55,000/mo", type: "Full-time" },
     ];
+
+    // Stats State
+    const [stats, setStats] = useState({
+        active: 0,
+        saved: 0,
+        interviews: 0
+    });
 
     useEffect(() => {
         // Dark Mode Logic
@@ -84,7 +93,31 @@ export default function Dashboard() {
         // Load User
         const storedUser = localStorage.getItem("user");
         if (storedUser) {
-            setUser(JSON.parse(storedUser));
+            const parsedUser = JSON.parse(storedUser);
+            setUser(parsedUser);
+
+            // Fetch Stats & Applications
+            if (parsedUser.id) {
+                fetch(`http://localhost:5000/api/applications/stats/${parsedUser.id}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        setStats(prev => ({
+                            ...prev,
+                            active: data.active || 0,
+                            saved: data.saved || 0,
+                            interviews: data.interviews || 0
+                        }));
+                    })
+                    .catch(err => console.error("Failed to fetch stats", err));
+
+                fetch(`http://localhost:5000/api/applications/${parsedUser.id}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        setAppliedInternships(data.filter(app => app.status === 'Applied').map(app => app.internshipId));
+                        setSavedInternshipIds(data.filter(app => app.status === 'Saved').map(app => app.internshipId));
+                    })
+                    .catch(err => console.error("Failed to fetch applications", err));
+            }
         }
     }, []);
 
@@ -99,6 +132,67 @@ export default function Dashboard() {
             setIsDarkMode(true);
         }
     };
+
+    const handleSaveInternship = async (e, internship) => {
+        e.stopPropagation();
+        if (!user.id) {
+            toast.error("Please login to save");
+            return;
+        }
+
+        const isSaved = savedInternshipIds.includes(internship.id) || savedInternshipIds.includes(String(internship.id));
+
+        if (isSaved) {
+            // Unsave Logic
+            try {
+                await fetch("http://localhost:5000/api/applications/unsave", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ userId: user.id, internshipId: internship.id })
+                });
+
+                toast.success("Internship removed from saved.");
+                setStats(prev => ({ ...prev, saved: Math.max(0, prev.saved - 1) }));
+                setSavedInternshipIds(prev => prev.filter(id => id !== internship.id && id !== String(internship.id)));
+            } catch (err) {
+                console.error("Failed to unsave", err);
+                toast.error("Failed to unsave internship");
+            }
+        } else {
+            // Save Logic
+            try {
+                const payload = {
+                    userId: user.id,
+                    internshipId: internship.id,
+                    title: internship.title,
+                    company: internship.company,
+                    location: internship.location,
+                    stipend: internship.stipend,
+                    status: "Saved"
+                };
+
+                await fetch("http://localhost:5000/api/applications/apply", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+
+                toast.success("Internship saved!");
+                setStats(prev => ({ ...prev, saved: prev.saved + 1 }));
+                setSavedInternshipIds(prev => [...prev, internship.id]);
+            } catch (err) {
+                console.error("Failed to save", err);
+                toast.error("Failed to save internship");
+            }
+        }
+    };
+
+    const handleApplyClick = (internship) => {
+        navigate("/apply", { state: { internship } });
+    };
+
+    // Filter out applied internships
+    const displayInternships = recommendedInternships.filter(job => !appliedInternships.includes(job.id) && !appliedInternships.includes(String(job.id)));
 
     return (
         <div className="bg-slate-50 dark:bg-[#0B1120] min-h-screen font-sans text-slate-900 dark:text-slate-100 transition-colors duration-300">
@@ -126,9 +220,9 @@ export default function Dashboard() {
                 {/* Stats Grid - Clean Professional Look */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
                     {[
-                        { label: "Active Applications", value: "12", icon: Send, color: "text-[#6B629D] bg-[#6B629D]/10 dark:bg-[#6B629D]/20" },
-                        { label: "Saved Internships", value: "5", icon: Bookmark, color: "text-[#949D62] bg-[#949D62]/10 dark:bg-[#949D62]/20" },
-                        { label: "Scheduled Interviews", value: "2", icon: Video, color: "text-slate-600 bg-slate-100 dark:text-slate-300 dark:bg-slate-800" },
+                        { label: "Active Applications", value: stats.active, icon: Send, color: "text-[#6B629D] bg-[#6B629D]/10 dark:bg-[#6B629D]/20" },
+                        { label: "Saved Internships", value: stats.saved, icon: Bookmark, color: "text-[#949D62] bg-[#949D62]/10 dark:bg-[#949D62]/20" },
+                        { label: "Scheduled Interviews", value: stats.interviews, icon: Video, color: "text-slate-600 bg-slate-100 dark:text-slate-300 dark:bg-slate-800" },
                     ].map((stat, i) => (
                         <div key={i} className="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow">
                             <div className="flex items-start justify-between mb-4">
@@ -201,15 +295,24 @@ export default function Dashboard() {
                             </div>
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                {recommendedInternships.map((job) => (
-                                    <div key={job.id} onClick={() => { toast.success("Applied to " + job.company) }} className="bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm hover:border-[#6B629D] transition-all cursor-pointer group">
+                                {displayInternships.map((job) => (
+                                    <div key={job.id} onClick={() => handleApplyClick(job)} className="bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm hover:border-[#6B629D] transition-all cursor-pointer group relative">
                                         <div className="flex items-start justify-between mb-3">
                                             <div className="w-10 h-10 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-lg font-bold text-slate-700 dark:text-slate-300 group-hover:bg-[#6B629D]/10 dark:group-hover:bg-[#6B629D]/20 group-hover:text-[#6B629D] transition-colors">
                                                 {job.company.charAt(0)}
                                             </div>
-                                            <span className="text-xs font-medium px-2 py-1 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded">
-                                                {job.type}
-                                            </span>
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-xs font-medium px-2 py-1 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded">
+                                                    {job.type}
+                                                </span>
+                                                <button
+                                                    onClick={(e) => handleSaveInternship(e, job)}
+                                                    className="p-1.5 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-[#949D62] transition-colors"
+                                                    title={savedInternshipIds.includes(job.id) || savedInternshipIds.includes(String(job.id)) ? "Unsave Internship" : "Save Internship"}
+                                                >
+                                                    <Bookmark size={18} className={savedInternshipIds.includes(job.id) || savedInternshipIds.includes(String(job.id)) ? "fill-[#949D62] text-[#949D62]" : ""} />
+                                                </button>
+                                            </div>
                                         </div>
                                         <h4 className="font-bold text-slate-900 dark:text-white mb-1 group-hover:text-[#6B629D] transition-colors">{job.title}</h4>
                                         <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">{job.company}</p>
@@ -224,6 +327,11 @@ export default function Dashboard() {
                                         </div>
                                     </div>
                                 ))}
+                                {displayInternships.length === 0 && (
+                                    <div className="col-span-2 text-center py-8 text-slate-500">
+                                        No new recommendations at the moment.
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>
