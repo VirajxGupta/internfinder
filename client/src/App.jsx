@@ -21,8 +21,8 @@ import { AuthProvider } from "./context/AuthContext.jsx";
 // Helper component to conditionally render Chatbot
 function ChatbotWrapper() {
   const location = useLocation();
-  // Hide chatbot on homepage
-  if (location.pathname === "/") return null;
+  // Hide chatbot on homepage, login, and signup
+  if (["/", "/login", "/signup"].includes(location.pathname)) return null;
   return <Chatbot />;
 }
 
