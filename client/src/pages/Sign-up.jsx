@@ -4,9 +4,11 @@ import { toast } from "react-hot-toast";
 import { User, Mail, Lock, Sun, Moon, ArrowRight, ShieldCheck, CheckCircle, Briefcase } from "lucide-react";
 import { GoogleAuthProvider, GithubAuthProvider, signInWithPopup } from "firebase/auth";
 import { auth } from "../firebase";
+import { useAuth } from "../context/AuthContext";
 
 export default function SignupPage() {
   const navigate = useNavigate();
+  const { setUser } = useAuth();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -56,6 +58,7 @@ export default function SignupPage() {
 
       if (res.ok) {
         localStorage.setItem("user", JSON.stringify(data.user));
+        setUser(data.user);
         toast.success(data.message || "Signed up with Google! \u2705");
         navigate("/home");
       } else {
@@ -85,6 +88,7 @@ export default function SignupPage() {
 
       if (res.ok) {
         localStorage.setItem("user", JSON.stringify(data.user));
+        setUser(data.user);
         toast.success(data.message || "Signed up with GitHub! \u2705");
         navigate("/home");
       } else {

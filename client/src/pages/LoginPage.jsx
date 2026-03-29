@@ -4,9 +4,11 @@ import { toast } from "react-hot-toast";
 import { Lock, Mail, LogIn, Sun, Moon, ArrowRight, CheckCircle, Shield } from "lucide-react";
 import { GoogleAuthProvider, GithubAuthProvider, signInWithPopup, signInWithCustomToken } from "firebase/auth";
 import { auth } from "../firebase";
+import { useAuth } from "../context/AuthContext";
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const { setUser } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -52,6 +54,7 @@ export default function LoginPage() {
 
       if (res.ok) {
         localStorage.setItem("user", JSON.stringify(data.user));
+        setUser(data.user);
         toast.success(data.message || "Logged in with Google! \u2705");
         navigate("/home");
       } else {
@@ -81,6 +84,7 @@ export default function LoginPage() {
 
       if (res.ok) {
         localStorage.setItem("user", JSON.stringify(data.user));
+        setUser(data.user);
         toast.success(data.message || "Logged in with GitHub! \u2705");
         navigate("/home");
       } else {
@@ -111,6 +115,7 @@ export default function LoginPage() {
           await signInWithCustomToken(auth, data.token);
         }
         localStorage.setItem("user", JSON.stringify(data.user));
+        setUser(data.user);
         toast.success("Welcome back! Login successful. \u2705"); // \u2705 is checkmark
         navigate("/home");
       } else {
