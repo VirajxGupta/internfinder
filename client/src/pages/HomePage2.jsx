@@ -47,7 +47,10 @@ export default function Dashboard() {
             // Fetch Stats & Applications
             if (parsedUser.id) {
                 fetch(`${import.meta.env.VITE_BACKEND_URL}/api/applications/stats/${parsedUser.id}`)
-                    .then(res => res.json())
+                    .then(res => {
+                        if (!res.ok) throw new Error(`Stats API error: ${res.status}`);
+                        return res.json();
+                    })
                     .then(data => {
                         setStats(prev => ({
                             ...prev,
@@ -59,7 +62,10 @@ export default function Dashboard() {
                     .catch(err => console.error("Failed to fetch stats", err));
 
                 fetch(`${import.meta.env.VITE_BACKEND_URL}/api/applications/${parsedUser.id}`)
-                    .then(res => res.json())
+                    .then(res => {
+                        if (!res.ok) throw new Error(`Applications API error: ${res.status}`);
+                        return res.json();
+                    })
                     .then(data => {
                         setAppliedInternships(data.filter(app => app.status === 'Applied').map(app => app.internshipId));
                         setSavedInternshipIds(data.filter(app => app.status === 'Saved').map(app => app.internshipId));

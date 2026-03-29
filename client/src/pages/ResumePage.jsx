@@ -200,7 +200,10 @@ function ResumePage() {
         } catch (error) {
           console.error('Error:', error);
           toast.dismiss();
-          toast.error(`Error: ${error.message}`);
+          toast("⚠️ Our AI resume analysis service is temporarily unavailable. Hugging Face has taken down our account. Please help us get it back! In the meantime, try browsing internships manually.", {
+            duration: 6000,
+            icon: "🚧",
+          });
         } finally {
           setLoading(false);
         }

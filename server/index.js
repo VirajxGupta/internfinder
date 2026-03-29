@@ -85,7 +85,11 @@ app.post("/api/addInternship", async (req, res) => {
 });
 
 // Catch-all route to serve the React app for any other requests (SPA support)
+// Skip /api/ routes so they return a proper 404 instead of index.html
 app.get(/.*/, (req, res) => {
+  if (req.path.startsWith("/api/")) {
+    return res.status(404).json({ message: "API route not found" });
+  }
   res.sendFile(path.join(__dirname, "../client/dist/index.html"));
 });
 

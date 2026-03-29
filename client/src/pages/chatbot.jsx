@@ -104,10 +104,9 @@ export default function Chatbot() {
       console.error("Error fetching recommendation:", error);
       const errorMessage = {
         from: "bot",
-        text: "Sorry, I'm having trouble connecting. Please try again later.",
+        text: "⚠️ Our AI service is temporarily unavailable. Hugging Face has taken down our account. Please help us get it back! In the meantime, try browsing internships manually from the Explore page.",
       };
       setMessages((prev) => [...prev, errorMessage]);
-      toast.error("Failed to connect to chatbot service.");
     } finally {
       setIsLoading(false);
     }

@@ -162,7 +162,10 @@ export default function Explore() {
       setShowMore(false);
       toast.success("Recommendations loaded!");
     } catch (err) {
-      toast.error(err.message);
+      toast("⚠️ Our AI recommendation service is temporarily unavailable. Hugging Face has taken down our account. Please help us get it back!", {
+        duration: 6000,
+        icon: "🚧",
+      });
     } finally {
       setLoading(false);
     }
