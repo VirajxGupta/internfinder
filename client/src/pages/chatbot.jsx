@@ -104,7 +104,7 @@ export default function Chatbot() {
       console.error("Error fetching recommendation:", error);
       const errorMessage = {
         from: "bot",
-        text: "⚠️ Our AI service is temporarily unavailable. Hugging Face has taken down our account. Please help us get it back! In the meantime, try browsing internships manually from the Explore page.",
+        text: "i am using free hosting services so it goes down after inactivity, please give us a job so i can purchase AWS service to host",
       };
       setMessages((prev) => [...prev, errorMessage]);
     } finally {
